@@ -137,7 +137,7 @@ function openLB(urls,i){LB={urls,i};showLB();$('#lb').classList.add('open')}
 $('#close').onclick=()=>$('#lb').classList.remove('open');
 $('#prev').onclick=()=>{LB.i--;showLB()};$('#next').onclick=()=>{LB.i++;showLB()};
 addEventListener('keydown',e=>{if(!$('#lb').classList.contains('open'))return;if(e.key==='Escape')$('#close').click();if(e.key==='ArrowRight')$('#next').click();if(e.key==='ArrowLeft')$('#prev').click()});
-/* enquiry form (posts to Netlify Forms) */
+/* enquiry form (posts to Cloudflare Pages Function + Resend) */
 const F=$('#enqForm'),evs=[...F.querySelectorAll('input[name=events]')],panels=[...F.querySelectorAll('.panel')],send=$('#send');
 const pw=evs.find(i=>i.dataset.k==='prewedding'),haldi=F.querySelector('.panel[data-k=haldi]');
 let autoPre=false;
@@ -162,6 +162,19 @@ function sync(){
 }
 F.addEventListener('input',sync);F.addEventListener('change',sync);
 F.addEventListener('submit',async e=>{e.preventDefault();sync();
+ if(!F.checkValidity()){F.reportValidity();return}
+ send.disabled=true;send.textContent='Sending…';$('#err').textContent='';
+ try{
+  const r=await fetch('/api/enquiry',{method:'POST',body:new FormData(F)});
+  const data=await r.json().catch(()=>({success:false}));
+  if(!r.ok||!data.success)throw new Error(data.message||'Submission failed');
+  const n=F.elements.namedItem('name').value.trim().split(' ')[0];$('#dname').textContent=n?', '+n:'';
+  F.hidden=true;$('#done').hidden=false;$('#done').scrollIntoView({behavior:'smooth',block:'center'})
+ }catch(_){
+  $('#err').textContent='Sorry, that did not go through. Please try again in a moment or contact us on WhatsApp.';
+  send.textContent='Send enquiry';send.disabled=false
+ }});
+sync();
  if(!F.checkValidity()){F.reportValidity();return}
  send.disabled=true;send.textContent='Sending…';
  try{const r=await fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(new FormData(F)).toString()});
