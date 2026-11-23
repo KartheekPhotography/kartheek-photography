@@ -1,20 +1,30 @@
 const $=s=>document.querySelector(s);
+
+/* ImageKit delivery: paths mirror the existing src/ folder structure. */
+const IMAGEKIT_BASE='https://ik.imagekit.io/goamqjl1w7';
+const imageUrl=path=>`${IMAGEKIT_BASE}/${String(path).replace(/^\/+/, '')}`;
+
 /* Gallery categories. Folder for each album: src/gallery/<id>/carousel-1, carousel-2, ...
    Add or rename albums by editing the subs list (one title per carousel folder). */
 const CATS=[
- {id:'weddings',title:'Weddings',subs:['Wedding story 1','Wedding story 2','Wedding story 3','Wedding story 4','Wedding story 5','Wedding story 6']},
- {id:'pre-weddings',title:'Pre-weddings',subs:['Pre-wedding 1','Pre-wedding 2','Pre-wedding 3','Pre-wedding 4','Pre-wedding 5']},
+{id:'pre-weddings',title:'Pre-weddings',subs:['Vikram Srilekha','Pre-wedding 2','Pre-wedding 3','Pre-wedding 4','Pre-wedding 5', 'Pre-wedding 6',   'Pre-wedding 7', 'Pre-wedding 8', 'Pre-wedding 9', 'Pre-wedding 10']},
+ {id:'weddings',title:'Weddings',subs:['Laxman & Dhanalakshmi','Harsha & Harika','Charan & Priyanka','Ajay & Leela','Santhosh & Yanvitha','Vikram & Srilekha']},
  {id:'engagement',title:'Engagement',subs:['Engagement 1','Engagement 2','Engagement 3','Engagement 4','Engagement 5']},
- {id:'haldi',title:'Haldi',subs:['Haldi 1','Haldi 2','Haldi 3','Haldi 4','Haldi 5']},
- {id:'sangeeth',title:'Sangeeth',subs:['Sangeeth 1','Sangeeth 2','Sangeeth 3','Sangeeth 4','Sangeeth 5']},
+ {id:'haldi',title:'Haldi',subs:['Haldi 1','Haldi 2','Haldi 3', 'Haldi 4','Haldi 5']},
+ {id:'sangeeth',title:'Sangeeth',subs:['Sangeeth 1','Sangeeth 2']},
  {id:'mahendi',title:'Mahendi',subs:['Mahendi 1','Mahendi 2','Mahendi 3','Mahendi 4','Mahendi 5']}
 ];
 /* Finds photos named 01, 02, 03... (jpg, jpeg, png or webp) in a folder. Stops at the first missing number. */
 const EXT=['jpg','jpeg','png','webp'];
 /* Checks whether a file exists WITHOUT downloading it (a tiny HEAD request). When the page is opened as a local file it falls back to loading the image. */
-const probe=async u=>{try{const r=await fetch(u,{method:'HEAD'});return r.ok}catch(e){return new Promise(res=>{const i=new Image();i.onload=()=>res(true);i.onerror=()=>res(false);i.src=u})}};
+const probe=u=>new Promise(resolve=>{
+ const img=new Image();
+ img.onload=()=>resolve(true);
+ img.onerror=()=>resolve(false);
+ img.src=u;
+});
 async function findImages(folder){const out=[];for(let n=1;n<=60;n++){const nn=String(n).padStart(2,'0');let f=null;
- for(const e of EXT){const u=`${folder}/${nn}.${e}`;if(await probe(u)){f=u;break}}if(!f)break;out.push(f)}return out}
+ for(const e of EXT){const u=imageUrl(`${folder}/${nn}.${e}`);if(await probe(u)){f=u;break}}if(!f)break;out.push(f)}return out}
 /* auto-changing carousel with arrows, clickable dots and swipe.
    Speed-ups: a carousel loads nothing until it is on screen, then loads only its first photo, and each next photo is loaded just before it is shown. */
 function carousel(root,urls,o={}){
@@ -86,19 +96,24 @@ const FILMS=[
    {id:'https://youtu.be/RRbdhcJasiA',title:'Vikram & Sri Lekha',tag:'Hyderabad'},
    {id:'https://youtu.be/Ra5dnigt2kQ',title:'Jaikanth & Manasa',tag:'Rajahmundry'},
    {id:'https://youtu.be/oUmAgI-SpA4',title:'Sravan & Renuka',tag:'Annavaram'},
-   {id:'https://youtu.be/NWULlW78itM',title:'Sai & Geetha',tag:'Wedding film'},
-   {id:'https://youtu.be/PqKYrMFVWmY',title:'Wedding film 3',tag:'Wedding film'},
-   {id:'https://youtu.be/J1ZaP93LsHI',title:'Wedding film 3',tag:'Wedding film'},
+   {id:'https://youtu.be/NWULlW78itM',title:'Sai & Geetha',tag:'Khammam'},
+   {id:'https://youtu.be/PqKYrMFVWmY',title:'Charan & Priyanka',tag:'Hyderabad'},
+   {id:'https://youtu.be/J1ZaP93LsHI',title:'Harsha & Harika',tag:'Hyderabad'},
  ]},
  {title:'Pre-wedding films',folder:'pre-wedding-films',videos:[
-  {id:'https://youtu.be/aqz-KE-bpKQ',title:'Pre-wedding film 1',tag:'Sample video'},
-  {id:'https://youtu.be/eRsGyueVLvQ',title:'Pre-wedding film 2',tag:'Sample video'},
-  {id:'https://youtu.be/R6MlUcmOul8',title:'Pre-wedding film 3',tag:'Sample video'}
+  {id:'https://youtu.be/8P40y-0E0ow',title:'Vikram & Srilekha',tag:'Vishakapatnam'},
+  {id:'https://youtu.be/bHG22aGzQL4',title:'Kushal & Indu Priya',tag:'Honnavar'},
+  {id:'https://youtu.be/8CtwwPF7jU0',title:'Gyanadeep & Grayathri',tag:'Hyderabad'},
+  {id:'https://youtu.be/JF0uOamiEqc',title:'Srikanth & Neha',tag:'Ooty'},
+  {id:'https://youtu.be/fv6gI9W_B1k',title:'Manoj & Likitha',tag:'Mumbai'},
+  {id:'https://youtu.be/LqieRmqoVaY',title:'Santhosh & Yanvitha',tag:'Visakhapatnam'},
+   {id:'https://youtu.be/gQJ0bX8ODME',title:'Nagasai & Geethavani',tag:'Goa'},
+
  ]}
 ];
 const ytId=v=>{const m=String(v).match(/(?:v=|youtu\.be\/|embed\/|shorts\/|live\/)([\w-]{11})/);return m?m[1]:String(v).trim()};
 function thumbList(c,v,i){const id=ytId(v.id),nn=String(i+1).padStart(2,'0');
- return [...(v.thumb?[v.thumb]:[]),...['jpg','jpeg','png','webp'].map(e=>`src/films/${c.folder}/${nn}.${e}`),`https://i.ytimg.com/vi/${id}/maxresdefault.jpg`,`https://i.ytimg.com/vi/${id}/hqdefault.jpg`]}
+ return [...(v.thumb?[v.thumb]:[]),...['jpg','jpeg','png','webp'].map(e=>imageUrl(`src/films/${c.folder}/${nn}.${e}`)),`https://i.ytimg.com/vi/${id}/maxresdefault.jpg`,`https://i.ytimg.com/vi/${id}/hqdefault.jpg`]}
 $('#filmSections').innerHTML=FILMS.map((c,ci)=>`<div class="fcat"><h2>${c.title}</h2>${ci?'':'<p class="sub">Tap a film to watch it right here.</p>'}<div class="rail"><button type="button" class="rarr l" aria-label="Previous films" hidden>‹</button><div class="films track">${c.videos.map((v,i)=>
  `<button class="vid" data-c="${ci}" data-i="${i}" aria-label="Play ${v.title}"><img loading="lazy" alt="" data-n="0" data-s='${JSON.stringify(thumbList(c,v,i))}'><span class="pl"></span><span class="meta"><h3>${v.title}</h3><small>${v.tag||''}</small></span></button>`).join('')}</div><button type="button" class="rarr r" aria-label="Next films" hidden>›</button></div></div>`).join('');
 $('#filmSections').querySelectorAll('.rail').forEach(rail);
@@ -116,7 +131,8 @@ $('#vclose').onclick=closeVB;$('#vb').addEventListener('click',e=>{if(e.target.i
 addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#vb').classList.contains('open'))closeVB()});
 /* lightbox */
 let LB={urls:[],i:0};
-function showLB(){LB.i=(LB.i+LB.urls.length)%LB.urls.length;$('#lbart').style.backgroundImage=`url("${LB.urls[LB.i]}")`}
+// function showLB(){LB.i=(LB.i+LB.urls.length)%LB.urls.length;$('#lbart').style.backgroundImage=`url("${LB.urls[LB.i]}")`}
+function showLB(){LB.i=(LB.i+LB.urls.length)%LB.urls.length;$('#lbart').src=LB.urls[LB.i]}
 function openLB(urls,i){LB={urls,i};showLB();$('#lb').classList.add('open')}
 $('#close').onclick=()=>$('#lb').classList.remove('open');
 $('#prev').onclick=()=>{LB.i--;showLB()};$('#next').onclick=()=>{LB.i++;showLB()};
