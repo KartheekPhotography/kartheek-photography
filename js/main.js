@@ -1072,7 +1072,8 @@ F.addEventListener('submit', async e => {
     send.disabled = false;
   }
 });
-
+/* Blurred header bar after scrolling */
+(()=>{const n=document.querySelector('nav'),f=()=>n.classList.toggle('scrolled',scrollY>30);addEventListener('scroll',f,{passive:true});f()})();
 
 /* Initial form setup */
 
