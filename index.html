@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kartheek Photography</title>
+<link rel="icon" type="image/png" href="src/logo/favicon.png">
+<link rel="apple-touch-icon" href="src/logo/apple-touch-icon.png">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="cur" id="cur"></div>
+<nav><a class="logo" href="#top" aria-label="Kartheek Photography"><img src="src/logo/logo.png" alt="Kartheek Photography" onerror="this.replaceWith(Object.assign(document.createElement('b'),{textContent:'Kartheek Photography'}))"></a><a class="btn" href="#enquire">Check my date</a></nav>
+
+<header id="hero"><a id="top"></a>
+  <div class="top">
+    <h1 class="hl" id="hl" aria-label="Your day, in focus."><span class="bl" aria-hidden="true">Your day, in focus.</span><span class="sh" aria-hidden="true">Your day, in focus.</span><span class="sp" aria-hidden="true">Your day, in focus.</span></h1>
+    <p id="hint">Wedding photography and films from Hyderabad. Move your cursor over the headline to bring it into focus.</p>
+    <div class="cta"><a class="btn" href="#work">See the gallery</a><a class="btn ghost" href="#enquire">Check my date</a></div>
+  </div>
+  <div class="cw carousel" id="heroCar"></div>
+</header>
+
+<div class="mq" aria-hidden="true"><div id="mq"></div></div>
+
+<section id="work">
+  <h2>The gallery</h2>
+  <p class="sub">Pick a category. Every album plays on its own, and you can tap any photo to open it large.</p>
+  <div class="chips" id="tabs"></div>
+  <div class="rail" id="subsRail"><button type="button" class="rarr l" aria-label="Previous albums" hidden>‹</button><div class="subs track" id="subs"></div><button type="button" class="rarr r" aria-label="Next albums" hidden>›</button></div>
+</section>
+
+<section id="films">
+  <div id="filmSections"></div>
+</section>
+
+<section id="enquire">
+  <form class="enq" id="enqForm" name="enquiry" method="POST" action="/" data-netlify="true" netlify-honeypot="bot-field">
+    <input type="hidden" name="form-name" value="enquiry">
+    <input type="hidden" name="summary" id="summary">
+    <p class="hp"><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
+    <div>
+      <h2>Build your shoot</h2>
+      <p class="sub">Tell us about your big day. We'll reply with a quote and confirm whether your date is free. Fields marked * are required.</p>
+      <div class="fgrid">
+        <div class="q"><label for="name">Your name<i class="req" aria-hidden="true">*</i></label><input type="text" id="name" name="name" placeholder="Your full name" autocomplete="name" required></div>
+        <div class="q"><label for="city">City or venue<i class="req" aria-hidden="true">*</i></label><input type="text" id="city" name="city" placeholder="Hyderabad, Taj Falaknuma…" required></div>
+      </div>
+      <div class="q"><label for="service">What would you like us to shoot?<i class="req" aria-hidden="true">*</i></label>
+        <select id="service" name="service" required><option value="" disabled selected>Choose a service</option><option>Wedding</option><option>Pre-wedding</option><option>Wedding and Pre-wedding</option></select></div>
+      <div class="q" id="evBox" hidden><label>Which events should we cover?<i class="req" aria-hidden="true">*</i></label><div class="opts"><label class="opt"><input type="checkbox" name="events" value="Engagement" data-k="engagement"><span>Engagement</span></label><label class="opt"><input type="checkbox" name="events" value="Pre-wedding" data-k="prewedding"><span>Pre-wedding</span></label><label class="opt"><input type="checkbox" name="events" value="Pellikoduku" data-k="pellikoduku"><span>Pellikoduku</span></label><label class="opt"><input type="checkbox" name="events" value="Pellikuthuru" data-k="pellikuthuru"><span>Pellikuthuru</span></label><label class="opt"><input type="checkbox" name="events" value="Haldi" data-k="haldi"><span>Haldi</span></label><label class="opt"><input type="checkbox" name="events" value="Sangeeth" data-k="sangeeth"><span>Sangeeth</span></label><label class="opt"><input type="checkbox" name="events" value="Mehendi" data-k="mehendi"><span>Mehendi</span></label><label class="opt"><input type="checkbox" name="events" value="Wedding" data-k="wedding"><span>Wedding</span></label><label class="opt"><input type="checkbox" name="events" value="Reception" data-k="reception"><span>Reception</span></label><label class="opt"><input type="checkbox" name="events" value="Vratham" data-k="vratham"><span>Vratham</span></label><label class="opt"><input type="checkbox" name="events" value="Albums" data-k="albums"><span>Albums</span></label></div><p class="note">Select every event you need. Extra options appear for some of them.</p></div>
+      <div class="q" id="panels"><div class="panel" data-k="engagement" hidden><h4>Engagement coverage</h4><div class="opts"><label class="opt"><input type="radio" name="engagement_coverage" value="2 persons coverage" required><span>2 persons coverage</span></label><label class="opt"><input type="radio" name="engagement_coverage" value="4 persons coverage" required><span>4 persons coverage</span></label></div><p class="note">Cinematic and candid coverage are included in every option. Choose based on how much of the day you want covered.</p></div><div class="panel" data-k="prewedding" hidden><h4>Pre-wedding shoot</h4><div class="opts"><label class="opt"><input type="radio" name="prewedding_type" value="Only pictures" required><span>Only pictures</span></label><label class="opt"><input type="radio" name="prewedding_type" value="Only video" required><span>Only video</span></label><label class="opt"><input type="radio" name="prewedding_type" value="Both pictures and video" required><span>Both pictures and video</span></label></div><p class="note">Covering both pictures and video needs a minimum of 2 days.</p></div><div class="panel" data-k="haldi" hidden><h4>Haldi</h4><div class="opts"><label class="opt"><input type="checkbox" name="haldi_options" value="Bride"><span>Bride</span></label><label class="opt"><input type="checkbox" name="haldi_options" value="Groom"><span>Groom</span></label><label class="opt"><input type="checkbox" name="haldi_options" value="Couple"><span>Couple</span></label></div><p class="note">Pick Bride, Groom or both. Choose Couple for a joint haldi shoot (it cannot be combined with the other two).</p></div><div class="panel" data-k="sangeeth" hidden><h4>Sangeeth coverage</h4><div class="opts"><label class="opt"><input type="radio" name="sangeeth_coverage" value="2 persons coverage" required><span>2 persons coverage</span></label><label class="opt"><input type="radio" name="sangeeth_coverage" value="4 persons coverage" required><span>4 persons coverage</span></label></div><p class="note">Cinematic and candid coverage are included in every option. Choose based on how much of the day you want covered.</p></div><div class="panel" data-k="reception" hidden><h4>Reception coverage</h4><div class="opts"><label class="opt"><input type="radio" name="reception_coverage" value="2 persons coverage" required><span>2 persons coverage</span></label><label class="opt"><input type="radio" name="reception_coverage" value="4 persons coverage" required><span>4 persons coverage</span></label></div><p class="note">Cinematic and candid coverage are included in every option. Choose based on how much of the day you want covered.</p></div><div class="panel" data-k="albums" hidden><h4>Album size</h4><div class="opts"><label class="opt"><input type="radio" name="album_sheets" value="50 sheets" required><span>50 sheets</span></label><label class="opt"><input type="radio" name="album_sheets" value="100 sheets" required><span>100 sheets</span></label><label class="opt"><input type="radio" name="album_sheets" value="150 sheets" required><span>150 sheets</span></label></div></div></div>
+      <div class="fgrid">
+        <div class="q"><label for="date">Wedding or event date<i class="req" aria-hidden="true">*</i></label><input type="date" id="date" name="date" required></div>
+        <div class="q"><label for="phone">Contact number<i class="req" aria-hidden="true">*</i></label><input type="tel" id="phone" name="phone" placeholder="10-digit mobile number" inputmode="tel" autocomplete="tel" pattern="[+]?[0-9 ]{10,14}" title="Enter a valid phone number, for example 9876543210" required></div>
+      </div>
+      <div class="q"><label>Your budget<i class="req" aria-hidden="true">*</i></label><div class="opts"><label class="opt"><input type="radio" name="budget" value="1L-1.5L" required><span>₹1L – ₹1.5L</span></label><label class="opt"><input type="radio" name="budget" value="1.5L-2L" required><span>₹1.5L – ₹2L</span></label><label class="opt"><input type="radio" name="budget" value="2L-2.5L" required><span>₹2L – ₹2.5L</span></label><label class="opt"><input type="radio" name="budget" value="Above 2.5L" required><span>Above ₹2.5L</span></label></div></div>
+      <div class="q"><label for="comments">Anything else we should know?</label><textarea id="comments" name="comments" rows="4" placeholder="Tell us if we missed any event or if you have something special in mind: a ritual, a location, a style you love, or a shot you don't want us to miss."></textarea></div>
+      <div class="q"><label class="consent"><input type="checkbox" id="consent" name="consent" value="Agreed" required><span>I agree to be contacted about this enquiry.<i class="req" aria-hidden="true">*</i></span></label></div>
+      <button class="btn send" id="send" type="submit" disabled>Send enquiry</button>
+      <div class="err" id="err" role="alert"></div>
+    </div>
+    <aside class="side">
+      <div class="tbox">
+        <h3>What happens next</h3>
+        <ol class="steps">
+          <li><b>You send the enquiry</b><span>Tell us about your day using the form.</span></li>
+          <li><b>We reach out</b><span>We call or message you within 24 hours.</span></li>
+          <li><b>Quote and date</b><span>We send a quote and confirm your date.</span></li>
+          <li><b>You book</b><span>Secure your date with an advance.</span></li>
+        </ol>
+      </div>
+      <div class="tbox">
+        <h3>Prefer to talk?</h3>
+        <p class="note" style="margin:0 0 16px">Skip the form and reach us directly.</p>
+        <div class="reach">
+          <a class="rbtn" href="https://wa.me/918374967795?text=Hi%20Kartheek%2C%20I%20saw%20your%20website%20and%20would%20like%20to%20know%20more." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11.5a8 8 0 0 1-11.7 7.1L4 20l1.4-4.1A8 8 0 1 1 20 11.5z"/><path d="M9 9.5c.3 2.2 2.3 4.2 5 5l1.2-1.3-1.8-1-.8.7c-.8-.4-1.6-1.2-2-2l.7-.8-1-1.8z"/></svg><span>WhatsApp</span></a>
+          <a class="rbtn" href="tel:+918374967795"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg><span>Call +91 83749 67795</span></a>
+          <a class="rbtn" href="https://www.instagram.com/kartheek__photography/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor"/></svg><span>@kartheek__photography</span></a>
+        </div>
+        <div class="qr"><img src="src/qr/instagram.png" alt="QR code for the Instagram page @kartheek__photography" width="104" height="104"><p>Scan to open our Instagram</p></div>
+      </div>
+    </aside>
+  </form>
+  <div class="done" id="done" hidden>
+    <h2>Thank you<span id="dname"></span>!</h2>
+    <p class="sub">Your enquiry has reached us. We'll get back to you with a quote and your date status very soon.</p>
+  </div>
+</section>
+
+<footer>Kartheek Photography, Hyderabad. Instagram @kartheek__photography</footer>
+
+<div id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer">
+  <div><div class="big" id="lbart"></div>
+  <div class="nav"><button class="btn ghost" id="prev">Previous</button><button class="btn ghost" id="next">Next</button><button class="btn" id="close">Close</button></div></div>
+</div>
+
+<div id="vb" role="dialog" aria-modal="true" aria-label="Film player">
+  <div class="box"><div class="frame" id="vframe"></div>
+  <div class="bar"><h3 id="vt"></h3><span class="vbtns"><a class="btn ghost" id="vyt" href="#" target="_blank" rel="noopener">Watch on YouTube</a><button class="btn" id="vclose">Close</button></span></div></div>
+</div>
+
+<script src="js/main.js" defer></script>
+</body>
+</html>
