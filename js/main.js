@@ -11,26 +11,31 @@ const CATS=[
 ];
 /* Finds photos named 01, 02, 03... (jpg, jpeg, png or webp) in a folder. Stops at the first missing number. */
 const EXT=['jpg','jpeg','png','webp'];
-const probe=u=>new Promise(r=>{const i=new Image();i.onload=()=>r(true);i.onerror=()=>r(false);i.src=u});
+/* Checks whether a file exists WITHOUT downloading it (a tiny HEAD request). When the page is opened as a local file it falls back to loading the image. */
+const probe=async u=>{try{const r=await fetch(u,{method:'HEAD'});return r.ok}catch(e){return new Promise(res=>{const i=new Image();i.onload=()=>res(true);i.onerror=()=>res(false);i.src=u})}};
 async function findImages(folder){const out=[];for(let n=1;n<=60;n++){const nn=String(n).padStart(2,'0');let f=null;
  for(const e of EXT){const u=`${folder}/${nn}.${e}`;if(await probe(u)){f=u;break}}if(!f)break;out.push(f)}return out}
-/* auto-changing 16:9 carousel with arrows, clickable dots and swipe */
+/* auto-changing carousel with arrows, clickable dots and swipe.
+   Speed-ups: a carousel loads nothing until it is on screen, then loads only its first photo, and each next photo is loaded just before it is shown. */
 function carousel(root,urls,o={}){
- const N=urls.length;let cu=0,timer,sx=null,hov=false,dead=false;
+ const N=urls.length;let cu=0,timer,sx=null,hov=false,dead=false,vis=false,started=false,io;
  root.innerHTML='<div class="car"><div class="sls"></div><button class="ar l" aria-label="Previous photo">‹</button><button class="ar r" aria-label="Next photo">›</button></div><div class="dots"></div>';
- const car=root.querySelector('.car'),box=root.querySelector('.sls'),dots=root.querySelector('.dots');
- urls.forEach((u,i)=>{const d=document.createElement('div');d.className='slide';d.style.backgroundImage=`url("${u}")`;box.appendChild(d);
+ const car=root.querySelector('.car'),box=root.querySelector('.sls'),dots=root.querySelector('.dots'),slides=[];
+ urls.forEach((u,i)=>{const d=document.createElement('div');d.className='slide';box.appendChild(d);slides.push(d);
   const b=document.createElement('button');b.setAttribute('aria-label','Show photo '+(i+1));b.onclick=()=>go(i);dots.appendChild(b)});
- function play(){clearInterval(timer);if(!dead&&N>1&&!matchMedia('(prefers-reduced-motion:reduce)').matches)timer=setInterval(()=>{if(!document.hidden&&!hov)go(cu+1)},o.interval||5000)}
- function go(n,quiet){cu=(n+N)%N;[...box.children].forEach((d,i)=>d.classList.toggle('on',i===cu));[...dots.children].forEach((d,i)=>d.classList.toggle('on',i===cu));if(!quiet)play()}
+ const load=i=>{const d=slides[i];if(d&&!d.style.backgroundImage)d.style.backgroundImage=`url("${urls[i]}")`};
+ function play(){clearInterval(timer);if(!dead&&N>1&&!matchMedia('(prefers-reduced-motion:reduce)').matches)timer=setInterval(()=>{if(!document.hidden&&!hov&&vis)go(cu+1)},o.interval||5000)}
+ function go(n,quiet){cu=(n+N)%N;load(cu);load((cu+1)%N);[...box.children].forEach((d,i)=>d.classList.toggle('on',i===cu));[...dots.children].forEach((d,i)=>d.classList.toggle('on',i===cu));if(!quiet)play()}
  root.querySelector('.l').onclick=()=>go(cu-1);root.querySelector('.r').onclick=()=>go(cu+1);
  car.addEventListener('pointerenter',e=>{if(e.pointerType==='mouse')hov=true});car.addEventListener('pointerleave',()=>hov=false);
  car.addEventListener('pointerdown',e=>{sx=e.clientX});
  car.addEventListener('pointerup',e=>{if(sx===null)return;const dx=e.clientX-sx;sx=null;
   if(Math.abs(dx)>50)go(cu+(dx<0?1:-1));else if(o.open&&!e.target.closest('button'))o.open(urls,cu)});
- /* start from the zoomed-out state first, so the first photo also fades and zooms in on load */
- requestAnimationFrame(()=>requestAnimationFrame(()=>go(0,true)));setTimeout(play,o.delay||0);
- return()=>{dead=true;clearInterval(timer)}}
+ /* wait for the first photo, then start from the zoomed-out state so it fades and zooms in */
+ const start=()=>{if(started||dead)return;started=true;const im=new Image();
+  im.onload=im.onerror=()=>{load(0);requestAnimationFrame(()=>requestAnimationFrame(()=>{if(dead)return;go(0,true);setTimeout(play,o.delay||0)}))};im.src=urls[0]};
+ if('IntersectionObserver' in window){io=new IntersectionObserver(es=>{vis=es[es.length-1].isIntersecting;if(vis)start()},{rootMargin:'200px'});io.observe(root)}else{vis=true;start()}
+ return()=>{dead=true;clearInterval(timer);if(io)io.disconnect()}}
 /* main carousel */
 findImages('src/carousel').then(u=>{if(u.length)carousel($('#heroCar'),u,{interval:3500}) /* main carousel: milliseconds between photos (3500 = 3.5 seconds) */;else $('#heroCar').innerHTML='<p class="empty">Add photos named 01.jpg, 02.jpg... to src/carousel</p>'});
 /* headline focus lens */
