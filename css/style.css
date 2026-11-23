@@ -79,9 +79,8 @@ input{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--
 .err{color:var(--amber);font-size:14px;margin-top:10px;min-height:20px;position:relative}
 footer{padding:50px 5vw 90px;color:var(--mut);border-top:1px solid var(--line)}
 @media (max-width:860px){.enq{grid-template-columns:minmax(0,1fr)}.ticket{position:relative;top:0}section{padding:64px 5vw}}
-@media (max-width:600px){nav b{font-size:18px}nav a.btn{padding:8px 14px;font-size:14px}.btn{padding:13px 22px}.grid{grid-template-columns:1fr 1fr;gap:10px}.card h3{font-size:16px}.card small{font-size:12px}.ph{display:none}.card .meta{padding:36px 12px 12px}body{font-size:16px}.ar{width:38px;height:38px;font-size:20px}.logo img{height:32px}.row{font-size:15px}.cta .btn{padding:12px 20px}}
+@media (max-width:600px){nav b{font-size:18px}nav a.btn{padding:8px 14px;font-size:14px}.btn{padding:13px 22px}.grid{grid-template-columns:1fr 1fr;gap:10px}.card h3{font-size:16px}.card small{font-size:12px}.ph{display:none}.card .meta{padding:36px 12px 12px}body{font-size:16px}.ar{width:38px;height:38px;font-size:20px}.logo img{height:40px !important}.row{font-size:15px}.cta .btn{padding:12px 20px}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
-
 .logo{display:block}.logo img{height:60px;width:auto;display:block}
 .dots{display:flex;justify-content:center;gap:2px;padding:10px 0 4px}
 .dots button{width:32px;height:22px;border:0;background:none;position:relative;cursor:pointer;padding:0}
@@ -98,7 +97,8 @@ footer{padding:50px 5vw 90px;color:var(--mut);border-top:1px solid var(--line)}
 .sub .car:hover .slide.on{transform:scale(1.1);transition:opacity 1s,transform .6s ease}
 .sub .ar{width:40px;height:40px;font-size:20px;cursor:pointer}
 .empty{color:var(--mut);padding:40px;text-align:center}
-#lb .big{width:min(92vw,calc(78vh*1.7778),1100px);aspect-ratio:16/9;border-radius:16px;border:1px solid var(--line);background:var(--bg2) center/cover}
+/* #lb .big{width:min(92vw,calc(78vh*1.7778),1100px);aspect-ratio:16/9;border-radius:16px;border:1px solid var(--line);background:var(--bg2) center/cover} */
+#lb .big{display:block;width:auto;height:auto;max-width:92vw;max-height:78vh;object-fit:contain;border-radius:16px;margin:0 auto}
 
 /* films */
 .films{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px}
