@@ -66,25 +66,6 @@ const CATS = [
       'Haldi 5'
     ]
   },
-  {
-    id: 'sangeeth',
-    title: 'Sangeeth',
-    subs: [
-      'Sangeeth 1',
-      'Sangeeth 2'
-    ]
-  },
-  {
-    id: 'mahendi',
-    title: 'Mahendi',
-    subs: [
-      'Mahendi 1',
-      'Mahendi 2',
-      'Mahendi 3',
-      'Mahendi 4',
-      'Mahendi 5'
-    ]
-  }
 ];
 
 

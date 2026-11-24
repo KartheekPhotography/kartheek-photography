@@ -108,7 +108,7 @@ nav a.btn {
 .hl {
     position:relative;
     display:inline-block;
-    font:400 clamp(50px,9vw,110px)/1 var(--hd);
+    font:400 clamp(50px,9vw,98px)/1 var(--hd);
     letter-spacing:-.015em;
     --x:50%;
     --y:50%;
@@ -257,7 +257,7 @@ nav a.btn {
 .mq {
     width:min(72vw, 900px);
     height:4px;
-    margin:10px auto 0px auto !important;
+    margin:35px auto 0px auto !important;
     padding:0;
     border:0;
     background:linear-gradient(
@@ -537,6 +537,10 @@ nav.scrolled {
     }
     .ph {
         display:none
+    }
+    .chip{
+        font:500 11px var(--bd);
+        padding:9px 10px;
     }
     .card .meta {
         padding:36px 12px 12px
@@ -979,7 +983,8 @@ input:focus-visible,select:focus-visible,textarea:focus-visible {
         padding-bottom:8px
     }
     .mq {
-        font-size:20px
+        font-size:20px;
+        margin-top: 10px !important;
     }
     section {
         padding:48px 5vw
@@ -1014,7 +1019,6 @@ input[type=date] {
     padding-bottom:14px
 }
 .mq {
-    margin-top:35px !important;
     width:75%
 }
 section {
