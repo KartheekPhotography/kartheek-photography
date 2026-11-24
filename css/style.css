@@ -253,26 +253,21 @@ nav a.btn {
         cursor:none!important
     }
 }
-/* marquee */
+/* subtle centered divider with softly fading edges */
 .mq {
-    border-block:1px solid var(--line);
-    overflow:hidden;
-    white-space:nowrap;
-    padding:14px 0;
-    font:italic 400 24px var(--hd);
-    color:var(--mut)
-}
-.mq div {
-    display:inline-block;
-    animation:mq 40s linear infinite
-}
-.mq span {
-    margin:0 26px
-}
-@keyframes mq {
-    to {
-        transform:translateX(-50%)
-    }
+    width:min(72vw, 900px);
+    height:4px;
+    margin:10px auto 0px auto !important;
+    padding:0;
+    border:0;
+    background:linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(224,169,109,.10) 12%,
+        rgba(224,169,109,.48) 50%,
+        rgba(224,169,109,.10) 88%,
+        transparent 100%
+    );
 }
 section {
     padding:90px 5vw
@@ -981,7 +976,6 @@ input:focus-visible,select:focus-visible,textarea:focus-visible {
         padding-bottom:8px
     }
     .mq {
-        padding:10px 0;
         font-size:20px
     }
     section {
@@ -1017,10 +1011,11 @@ input[type=date] {
     padding-bottom:14px
 }
 .mq {
-    margin-top:0
+    margin-top:35px !important;
+    width:75%
 }
 section {
-    padding-top:64px;
+    padding-top:35px;
     padding-bottom:64px
 }
 @media (max-width:700px) {

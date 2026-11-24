@@ -395,19 +395,6 @@ document.addEventListener('pointerover', e => {
 
 
 /* =========================================================
-   MOVING QUOTE
-   ========================================================= */
-
-const words = [
-  'Some moments are too precious to fade, some emotions too beautiful to express, and every love story deserves to be remembered forever.'
-];
-
-$('#mq').innerHTML = [...words, ...words]
-  .map(word => `<span>${word}</span>`)
-  .join('<span></span>');
-
-
-/* =========================================================
    HORIZONTAL RAIL
    ========================================================= */
 
