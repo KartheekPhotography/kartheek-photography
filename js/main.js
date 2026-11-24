@@ -363,7 +363,7 @@ hl.addEventListener('pointerdown', e => {
 
 if (matchMedia('(pointer: coarse)').matches) {
   $('#hint').textContent =
-    'Wedding photography and films from Hyderabad. Touch and drag over the headline to bring it into focus.';
+    'Beyond what is seen, lies everything worth remembering.The quiet emotions, the fleeting moments and the beautiful imperfections that make every story extraordinary. Captured with intention, preserved with meaning.';
 }
 
 (function loop(t) {

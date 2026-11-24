@@ -487,8 +487,11 @@ nav.scrolled {
 }
 @media (max-width:600px) {
     .hl, .hl .sp{
-        height: 65px;
+        height: 45px;
         min-height: 0;
+    }
+    .hl{
+        font: 330 clamp(35px,8vw,110px)/1 var(--hd) !important
     }
     #hint {
         font-size:12px;
