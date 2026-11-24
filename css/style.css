@@ -274,7 +274,8 @@ section {
 }
 h2 {
     font:400 clamp(34px,5vw,64px)/1.05 var(--hd);
-    margin-bottom:12px
+    margin-bottom:12px;
+    font-size:40px
 }
 .sub {
     color:var(--mut);
@@ -560,7 +561,8 @@ nav.scrolled {
         font-size:15px
     }
     .cta .btn {
-        padding:12px 20px
+        font:500 11px var(--bd);
+        padding:10px 13px;
     }
 }
 @media (prefers-reduced-motion:reduce) {
@@ -624,7 +626,11 @@ nav.scrolled {
 }
 .sub h3 {
     font:400 26px var(--hd);
-    margin-bottom:12px
+    margin-bottom:12px;
+    font-size:18px
+}
+.build-form{
+    margin-top: 15px
 }
 @media (max-width:600px) {
     .subs {
@@ -632,7 +638,7 @@ nav.scrolled {
         gap:10px
     }
     .sub h3 {
-        font-size:16px;
+        font-size:13px;
         margin-bottom:8px
     }
 }
@@ -990,10 +996,12 @@ input:focus-visible,select:focus-visible,textarea:focus-visible {
         padding:48px 5vw
     }
     h2 {
-        margin-bottom:8px
+        margin-bottom:8px;
+        font-size: 30px;
     }
     .sub {
-        margin-bottom:20px
+        margin-bottom:20px;
+        font-size: 12px
     }
     .fcat+.fcat {
         margin-top:44px
@@ -1027,8 +1035,8 @@ section {
 }
 @media (max-width:700px) {
     section {
-        padding-top:44px;
-        padding-bottom:44px
+        padding-top:25px;
+        padding-bottom:15px
     }
 }
 /* side cards */

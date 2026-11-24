@@ -20,16 +20,16 @@ const CATS = [
     id: 'pre-weddings',
     title: 'Pre-weddings',
     subs: [
-      'Manoj Likhitha',
-      'Jaikanth Manasa',
-      'Sravan Mounika',
-      'Santhosh Yanvita',
-      'Vikram Sri Lekha',
-      'Kushal Indu Priya',
-      'Siva Likitha',
-      'Mahender Swathi',
-      'Nagendra Pavani',
-      'Madhan Hari Priya'
+      'Manoj & Likhitha',
+      'Jaikanth & Manasa',
+      'Sravan & Mounika',
+      'Santhosh & Yanvita',
+      'Vikram & Sri Lekha',
+      'Kushal & Indu Priya',
+      'Siva & Likitha',
+      'Mahender & Swathi',
+      'Nagendra & Pavani',
+      'Madhan & Hari Priya'
     ]
   },
   {
