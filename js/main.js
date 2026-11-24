@@ -17,23 +17,6 @@ const imageUrl = path =>
 
 const CATS = [
   {
-    id: 'pre-weddings',
-    title: 'Pre-weddings',
-    subs: [
-      'Manoj & Likhitha',
-      'Jaikanth & Manasa',
-      'Sravan & Mounika',
-      'Santhosh & Yanvita',
-      'Vikram & Sri Lekha',
-      'Kushal & Indu Priya',
-      'Siva & Likitha',
-      'Mahender & Swathi',
-      'Nagendra & Pavani',
-      'Madhan & Hari Priya',
-      'Ajay & Madhuri',
-    ]
-  },
-  {
     id: 'weddings',
     title: 'Weddings',
     subs: [
@@ -48,6 +31,23 @@ const CATS = [
       'Lakshman & Dhanalakshmi',
       'Raja & Mahitha',
       'Charan & Priyanka',
+    ]
+  },
+    {
+    id: 'pre-weddings',
+    title: 'Pre-weddings',
+    subs: [
+      'Manoj & Likhitha',
+      'Jaikanth & Manasa',
+      'Sravan & Mounika',
+      'Santhosh & Yanvita',
+      'Vikram & Sri Lekha',
+      'Kushal & Indu Priya',
+      'Siva & Likitha',
+      'Mahender & Swathi',
+      'Nagendra & Pavani',
+      'Madhan & Hari Priya',
+      'Ajay & Madhuri',
     ]
   },
   {
