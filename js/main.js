@@ -29,19 +29,25 @@ const CATS = [
       'Siva & Likitha',
       'Mahender & Swathi',
       'Nagendra & Pavani',
-      'Madhan & Hari Priya'
+      'Madhan & Hari Priya',
+      'Ajay & Madhuri',
     ]
   },
   {
     id: 'weddings',
     title: 'Weddings',
     subs: [
-      'Laxman & Dhanalakshmi',
-      'Harsha & Harika',
-      'Charan & Priyanka',
       'Ajay & Leela',
-      'Santhosh & Yanvitha',
-      'Vikram & Srilekha'
+      'Santhosh & Yanvita',
+      'Ajay & Madhuri',
+      'Vikram & Sri Lekha',
+      'Harsha & Harika',
+      'Sravan & Renuka',
+      'Nagendra & Pavani',
+      'Nagasai & Geethavani',
+      'Lakshman & Dhanalakshmi',
+      'Raja & Mahitha',
+      'Charan & Priyanka',
     ]
   },
   {
