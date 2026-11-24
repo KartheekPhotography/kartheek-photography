@@ -645,7 +645,8 @@ nav.scrolled {
 .sub .car {
     aspect-ratio:3/4;
     border-radius:14px;
-    cursor:zoom-in
+    cursor:zoom-in;
+    touch-action:pan-x pan-y
 }
 .sub .ar {
     display:none

@@ -215,6 +215,10 @@ function carousel(root, urls, options = {}) {
     startX = e.clientX;
   });
 
+  car.addEventListener('pointercancel', () => {
+    startX = null;
+  });
+
   car.addEventListener('pointerup', e => {
     if (startX === null) return;
 
