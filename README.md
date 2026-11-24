@@ -81,7 +81,7 @@ The existing pricing engine (`js/quote-pricing.js`) and PDF renderer (`js/quote-
 The new `/api/quote` endpoint stores a quote, updates its latest selection and creates a revision record.
 The first successful build emails the studio once. Rebuilding updates the stored quote without sending another email.
 The customer can explicitly choose **Submit quotation** in the PDF popup to send the latest PDF as a second notification and mark the record submitted.
-The mandatory customer fields are now name, mobile, email, location and event date.
+The mandatory customer fields are now name, mobile, location and event date.
 
 ### 90-day retention
 The `expires_at` value is refreshed to 90 days after every successful save. `cleanup-worker.js` deletes expired quote records and revision rows.

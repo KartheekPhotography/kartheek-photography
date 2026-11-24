@@ -1,7 +1,6 @@
 const json = (status, data) => new Response(JSON.stringify(data), {
   status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" }
 });
-const validEmail = s => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(s || ""));
 const asText = (v, max = 2000) => String(v ?? "").trim().slice(0, max);
 async function hashToken(token) {
   const bytes = new TextEncoder().encode(token);
@@ -21,12 +20,11 @@ export async function onRequestPost({ request, env }) {
     const client = body.client || {};
     const name = asText(client.name, 120);
     const phone = asText(client.phone, 30);
-    const email = asText(client.email, 254).toLowerCase();
     const city = asText(client.city, 160);
     const eventDate = asText(body.eventDate, 30);
     const comments = asText(body.comments, 3000);
-    if (!name || !phone || !validEmail(email) || !city || !eventDate) {
-      return json(400, { success: false, code: "invalid_customer", message: "Please provide your name, valid email, contact number, location and event date." });
+    if (!name || !phone || !city || !eventDate) {
+      return json(400, { success: false, code: "invalid_customer", message: "Please provide your name, contact number, location and event date." });
     }
     if (!body.selection || !body.quote || !Array.isArray(body.quote.lines) || !Number.isFinite(body.quote.total)) {
       return json(400, { success: false, code: "invalid_quote", message: "Quotation details are incomplete." });
@@ -39,9 +37,9 @@ export async function onRequestPost({ request, env }) {
       const token = [...crypto.getRandomValues(new Uint8Array(32))].map(b => b.toString(16).padStart(2, "0")).join("");
       const tokenHash = await hashToken(token);
       await env.DB.prepare(`INSERT INTO quotes
-        (id, access_token_hash, customer_name, customer_phone, customer_email, event_location, event_date, comments, selection_json, quote_json, revision, status, created_at, updated_at, expires_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 'generated', ?, ?, datetime('now', '+90 days'))`)
-        .bind(id, tokenHash, name, phone, email, city, eventDate, comments, selectionJson, quoteJson, now, now).run();
+        (id, access_token_hash, customer_name, customer_phone, event_location, event_date, comments, selection_json, quote_json, revision, status, created_at, updated_at, expires_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 'generated', ?, ?, datetime('now', '+90 days'))`)
+        .bind(id, tokenHash, name, phone, city, eventDate, comments, selectionJson, quoteJson, now, now).run();
       await env.DB.prepare(`INSERT INTO quote_revisions (quote_id, revision, selection_json, quote_json, created_at) VALUES (?, 1, ?, ?, ?)`)
         .bind(id, selectionJson, quoteJson, now).run();
       return json(200, { success: true, id, token, revision: 1, status: "generated" });
@@ -55,8 +53,8 @@ export async function onRequestPost({ request, env }) {
     if (!existing || existing.access_token_hash !== tokenHash) return json(404, { success: false, code: "quote_not_found" });
     const revision = existing.revision + 1;
     const status = action === "submit" ? "submitted" : existing.status;
-    await env.DB.prepare(`UPDATE quotes SET customer_name=?, customer_phone=?, customer_email=?, event_location=?, event_date=?, comments=?, selection_json=?, quote_json=?, revision=?, status=?, updated_at=?, expires_at=datetime('now', '+90 days') WHERE id=?`)
-      .bind(name, phone, email, city, eventDate, comments, selectionJson, quoteJson, revision, status, now, id).run();
+    await env.DB.prepare(`UPDATE quotes SET customer_name=?, customer_phone=?, event_location=?, event_date=?, comments=?, selection_json=?, quote_json=?, revision=?, status=?, updated_at=?, expires_at=datetime('now', '+90 days') WHERE id=?`)
+      .bind(name, phone, city, eventDate, comments, selectionJson, quoteJson, revision, status, now, id).run();
     await env.DB.prepare(`INSERT INTO quote_revisions (quote_id, revision, selection_json, quote_json, created_at) VALUES (?, ?, ?, ?, ?)`)
       .bind(id, revision, selectionJson, quoteJson, now).run();
     return json(200, { success: true, id, revision, status });

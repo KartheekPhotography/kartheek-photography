@@ -5,7 +5,6 @@ CREATE TABLE IF NOT EXISTS quotes (
   access_token_hash TEXT NOT NULL,
   customer_name TEXT NOT NULL,
   customer_phone TEXT NOT NULL,
-  customer_email TEXT NOT NULL,
   event_location TEXT NOT NULL,
   event_date TEXT NOT NULL,
   comments TEXT,

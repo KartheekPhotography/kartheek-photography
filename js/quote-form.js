@@ -66,7 +66,7 @@
   }
   /* "raghavi reddy" -> "Raghavi Reddy" (first letter of each word; the rest is left as typed) */
   const titleCase = s => s.trim().replace(/\s+/g, ' ').replace(/(^|[\s-])(\p{L})/gu, (m, a, b) => a + b.toLocaleUpperCase());
-  const getClient = () => ({ name: titleCase($('#name').value), phone: $('#phone').value.trim(), email: $('#email').value.trim().toLowerCase(), city: titleCase($('#city').value) });
+  const getClient = () => ({ name: titleCase($('#name').value), phone: $('#phone').value.trim(), city: titleCase($('#city').value) });
   let savedQuote = null, autosaveTimer = null, leadEmailSent = false;
   async function persistQuote(job, action) {
     const payload = {
@@ -96,7 +96,7 @@
       try {
         const client = getClient(), selection = getSelection();
         const errs = Pricing.validate(client, selection);
-        if (errs.length || !client.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(client.email) || !$('#date').value) return;
+        if (errs.length || !$('#date').value) return;
         const quote = Pricing.priceQuote(selection);
         const job = { client, selection, quote };
         await persistQuote(job, 'save');
@@ -248,7 +248,7 @@
     else if (!e.shiftKey && document.activeElement === lastEl) { e.preventDefault(); first.focus(); }
   });
 
-  /* ---------- email (every build sends a new one) ---------- */
+  /* ---------- studio notification email ---------- */
   const two = n => String(n).padStart(2, '0');
   async function sendEmail(job) {
     const fd = new FormData();
@@ -271,14 +271,13 @@
   }
 
   /* ---------- Build Quotation ----------
-     The popup opens ONLY after the studio has been emailed successfully. */
+     The popup opens after the quote is saved and the studio notification succeeds. */
   F.addEventListener('submit', async e => {
     e.preventDefault();
     if (building) return;
     clearErrors();
     const client = getClient(), sel = getSelection();
     const errs = Pricing.validate(client, sel);
-    if (!client.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(client.email)) errs.push({ field: 'email', msg: 'Please enter a valid email address.' });
     if (!$('#date').value) errs.push({ field: 'dateBtn', msg: 'Please select your wedding or event date.' });
     if (!$('#consent').checked) errs.push({ field: 'consent', msg: 'Please tick the box so we can contact you about your quotation.' });
     if (errs.length) { showErrors(errs); return; }
