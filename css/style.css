@@ -112,7 +112,9 @@ nav a.btn {
     letter-spacing:-.015em;
     --x:50%;
     --y:50%;
-    touch-action:pan-y
+    touch-action:pan-y;
+    padding:0 30px;
+    height:120px;
 }
 .hl span {
     display:block
@@ -128,16 +130,16 @@ nav a.btn {
 .hl .sh {
     -webkit-mask-image:radial-gradient(circle var(--r) at var(--x) var(--y),#000 72%,transparent 100%);
     mask-image:radial-gradient(circle var(--r) at var(--x) var(--y),#000 72%,transparent 100%);
-    text-shadow:0 0 40px #e0a96d77
+    text-shadow:0 0 40px #e0a96d77;
 }
 .hl .sp {
     visibility:hidden
 }
 #hint {
-    max-width:42ch;
-    margin:14px auto 0;
+    max-width:56ch;
+    margin:12px auto 0;
     color:var(--mut);
-    font:italic 400 clamp(18px,2vw,24px)/1.4 var(--hd)
+    font-size:15px; 
 }
 .cta {
     display:flex;
@@ -489,6 +491,32 @@ nav.scrolled {
     }
 }
 @media (max-width:600px) {
+    .hl, .hl .sp{
+        height: 65px;
+        min-height: 0;
+    }
+    #hint {
+        font-size:12px;
+    }
+        #hero .top {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 0;
+    }
+
+    #hero .top h1.hl {
+        height: auto !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        padding-bottom: 0.12em;
+        line-height: 1.1;
+    }
+
+    #hero .top #hint {
+        margin-bottom: 0 !important;
+    }
     nav b {
         font-size:18px
     }
