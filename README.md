@@ -31,12 +31,27 @@ Edit the FILMS list in js/main.js. Add one line per film:
 - To add a category (for example Engagement films), add a new block with a title and a videos list.
 - The sample videos are placeholders. Replace them with yours.
 
-## Enquiry form (Netlify)
-The "Build your shoot" form in index.html is a Netlify Form named "enquiry". Deploy the site on Netlify, then turn on email notifications:
-Site settings > Forms > Form notifications > Add notification > Email.
-Submissions also appear under Forms in the Netlify dashboard. The form must stay in index.html (Netlify reads it at deploy time).
-Fields: name, city, service, events, coverage choices, date, budget, phone, comments, consent, plus a "summary" line that reads like "Wedding: Engagement (2 persons coverage), Haldi (Bride)".
-To change the events or options, edit the form in index.html and the matching code under "enquiry form" in js/main.js.
+## Quotation builder (Build your shoot form)
+The form builds a PDF quotation in the browser, emails it to the studio as an attachment, and shows it to the visitor in a popup (Download / Edit / Close).
+No price is shown on the form. Prices only appear in the PDF.
+
+Where things live
+- js/quote-config.js    ALL prices, event names, notes, messages, PDF wording, terms and PDF colours. Edit this to change anything.
+- js/quote-pricing.js   the pricing / installments / validation logic (pure functions, no page code)
+- js/quote-pdf.js       the PDF generator (A4, rupee sign, Indian digit grouping, table continues on a 2nd page)
+- js/quote-datepicker.js  the themed calendar for the event date
+- js/quote-form.js      the form behaviour, the Compare popup, the quotation popup, the email call
+- js/quote-assets.js    generated: Roboto font subset + dark logo for the PDF. After changing src/logo/logo.png run: python3 tools/build_assets.py
+- js/vendor/            pdf.js (shows the PDF in the popup, works on phones)
+- functions/api/enquiry.js   Cloudflare Pages Function: receives the form + PDF and sends the email through Resend (attachment included)
+
+Email: needs the RESEND_API_KEY secret in Cloudflare (unchanged). Recipient and sender are at the bottom of functions/api/enquiry.js.
+Every click on Build Quotation sends a new email. The popup opens only if that email was sent; otherwise the visitor sees an error on the form.
+
+If sending fails, check in this order: (1) the site must be deployed on Cloudflare Pages with the functions/ folder (use Git deploy or `wrangler pages deploy`; drag-and-drop uploads and other hosts do not run functions), (2) RESEND_API_KEY is set under Pages > Settings > Environment variables (Production), then redeploy, (3) the domain kartheekphotography.com is verified in Resend, because the sender is enquiries@kartheekphotography.com. The error on the form shows the code (404/405 = function not deployed, 500 no_api_key = key missing, 502 resend_rejected = Resend refused, see Cloudflare logs).
+To change PDF colours, edit PDF.colors in js/quote-config.js.
+
+Tests (optional): node tests/acceptance.test.js (pricing + PDF text, needs poppler) and node tests/ui.test.js (browser flow, needs Playwright).
 
 ## Contact card and QR
 - Phone / WhatsApp number (8374967795) and the Instagram link are in the "Prefer to talk?" card in index.html. Search for 918374967795 to change the number.
