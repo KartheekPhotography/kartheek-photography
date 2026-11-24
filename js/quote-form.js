@@ -8,6 +8,7 @@
   const $ = s => document.querySelector(s);
   const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
+  const saveStatus = $('#saveStatus');
   const F = $('#enqForm'), evBox = $('#evBox'), panelsBox = $('#panels'), sendBtn = $('#send'), errBox = $('#err');
   let last = null, blobUrl = null, building = false;
 
@@ -65,7 +66,50 @@
   }
   /* "raghavi reddy" -> "Raghavi Reddy" (first letter of each word; the rest is left as typed) */
   const titleCase = s => s.trim().replace(/\s+/g, ' ').replace(/(^|[\s-])(\p{L})/gu, (m, a, b) => a + b.toLocaleUpperCase());
-  const getClient = () => ({ name: titleCase($('#name').value), phone: $('#phone').value.trim(), city: titleCase($('#city').value) });
+  const getClient = () => ({ name: titleCase($('#name').value), phone: $('#phone').value.trim(), email: $('#email').value.trim().toLowerCase(), city: titleCase($('#city').value) });
+  let savedQuote = null, autosaveTimer = null, leadEmailSent = false;
+  async function persistQuote(job, action) {
+    const payload = {
+      action, id: savedQuote && savedQuote.id, token: savedQuote && savedQuote.token,
+      client: job.client, eventDate: $('#date').value, comments: $('#comments').value.trim(),
+      selection: job.selection, quote: {
+        total: job.quote.total, installments: job.quote.installments,
+        lines: job.quote.lines.map(l => ({ name: l.name, services: l.services, amount: l.amount }))
+      }
+    };
+    const response = await fetch('/api/quote', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload)
+    });
+    const data = await response.json().catch(() => ({ success: false, code: 'bad_response' }));
+    if (!response.ok || !data.success) {
+      const err = new Error(data.message || 'Could not save quotation'); err.status = response.status; err.code = data.code; throw err;
+    }
+    if (action === 'create') savedQuote = { id: data.id, token: data.token, revision: data.revision };
+    else savedQuote = { ...savedQuote, revision: data.revision, status: data.status };
+    job.quoteId = savedQuote.id; job.revision = savedQuote.revision;
+    return data;
+  }
+  function scheduleAutosave() {
+    if (!savedQuote || building) return;
+    clearTimeout(autosaveTimer);
+    autosaveTimer = setTimeout(async () => {
+      try {
+        const client = getClient(), selection = getSelection();
+        const errs = Pricing.validate(client, selection);
+        if (errs.length || !client.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(client.email) || !$('#date').value) return;
+        const quote = Pricing.priceQuote(selection);
+        const job = { client, selection, quote };
+        await persistQuote(job, 'save');
+        if (last) { last.client = client; last.selection = selection; last.quote = quote; last.revision = job.revision; }
+        qstatus.className = 'qstatus ok'; qstatus.textContent = `Saved · Revision ${job.revision}`;
+        saveStatus.textContent = `Your quotation is saved (revision ${job.revision}).`;
+      } catch (err) {
+        console.warn('Quotation autosave failed', err);
+        qstatus.className = 'qstatus'; qstatus.textContent = 'Changes not saved — please try again';
+        saveStatus.textContent = 'Changes not saved. Please check your connection.';
+      }
+    }, 900);
+  }
 
   /* ---------- live behaviour ---------- */
   function sync() {
@@ -104,7 +148,7 @@
     if (first) { first.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (first.focus && first.tagName === 'INPUT') first.focus({ preventScroll: true }); }
   }
 
-  F.addEventListener('input', () => { sync(); clearErrors(); });
+  F.addEventListener('input', () => { sync(); clearErrors(); scheduleAutosave(); });
   F.addEventListener('change', e => {
     // Couple Haldi replaces a single Bride/Groom pick (they cannot be combined)
     if (e.target.matches('[data-opt=couple]') && e.target.checked) {
@@ -176,6 +220,25 @@
     const a = document.createElement('a'); a.href = blobUrl; a.download = last.fileName;
     document.body.appendChild(a); a.click(); a.remove();             // popup stays open
   };
+  $('#qsubmit').onclick = async () => {
+    if (!last || !savedQuote || building) return;
+    const b = $('#qsubmit'); b.disabled = true; b.textContent = 'Submitting…';
+    try {
+      const client = getClient(), selection = getSelection(), quote = Pricing.priceQuote(selection);
+      const now = new Date(), safeName = client.name.replace(/[^\p{L}\p{N}]+/gu, '_').replace(/^_+|_+$/g, '') || 'Client';
+      const fileName = CFG.FILE_NAME.replace('{name}', safeName).replace('{date}', `${two(now.getDate())}-${two(now.getMonth() + 1)}-${now.getFullYear()}`);
+      last = { ...last, client, selection, quote, bytes: PDF.build({ client, quote, date: now }), fileName, createdLabel: PDF.fmtDate(now, '.') };
+      await sendEmail(last); // second and final owner notification, only on explicit submit
+      const result = await persistQuote(last, 'submit');
+      qstatus.className = 'qstatus ok'; qstatus.textContent = `Submitted · Revision ${result.revision}`;
+      saveStatus.textContent = `Quotation submitted · Revision ${result.revision}`;
+      b.textContent = 'Submitted'; b.disabled = true;
+    } catch (err) {
+      console.error('Final quotation submission failed', err);
+      qstatus.className = 'qstatus'; qstatus.textContent = 'Submission failed. Please try again.';
+      b.disabled = false; b.textContent = 'Submit quotation';
+    }
+  };
   qb.addEventListener('keydown', e => {                             // keep Tab inside the popup; Escape is ignored on purpose
     if (e.key !== 'Tab') return;
     const f = [...qb.querySelectorAll('button')].filter(b => !b.disabled);
@@ -193,6 +256,7 @@
     if ($('#date').value) fd.append('date', $('#date').value);
     if ($('#comments').value.trim()) fd.append('comments', $('#comments').value.trim());
     fd.append('consent', $('#consent').checked ? 'Agreed' : '');
+    if (job.quoteId) fd.append('quote_id', job.quoteId);
     fd.append('bot-field', F.elements['bot-field'].value);
     fd.append('quote', JSON.stringify({
       total: job.quote.total, installments: job.quote.installments, created: job.createdLabel,
@@ -214,9 +278,12 @@
     clearErrors();
     const client = getClient(), sel = getSelection();
     const errs = Pricing.validate(client, sel);
+    if (!client.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(client.email)) errs.push({ field: 'email', msg: 'Please enter a valid email address.' });
+    if (!$('#date').value) errs.push({ field: 'dateBtn', msg: 'Please select your wedding or event date.' });
     if (!$('#consent').checked) errs.push({ field: 'consent', msg: 'Please tick the box so we can contact you about your quotation.' });
     if (errs.length) { showErrors(errs); return; }
 
+    clearTimeout(autosaveTimer);
     building = true; sendBtn.disabled = true; sendBtn.textContent = CFG.COPY.building;
     let job;
     try {
@@ -224,26 +291,32 @@
       const bytes = PDF.build({ client, quote, date });
       const safeName = client.name.replace(/[^\p{L}\p{N}]+/gu, '_').replace(/^_+|_+$/g, '') || 'Client';
       const fileName = CFG.FILE_NAME.replace('{name}', safeName).replace('{date}', `${two(date.getDate())}-${two(date.getMonth() + 1)}-${date.getFullYear()}`);
-      job = { client, quote, bytes, fileName, createdLabel: PDF.fmtDate(date, '.') };
+      job = { client, selection: sel, quote, bytes, fileName, createdLabel: PDF.fmtDate(date, '.') };
     } catch (err) {
       console.error('Quotation build failed', err);
       errBox.textContent = CFG.COPY.buildFailed;
       building = false; sendBtn.disabled = false; sendBtn.textContent = 'Build Quotation';
       return;
     }
+    job.selection = sel;
     try {
-      await sendEmail(job);                              // a new email on every click, no de-duplication
+      const firstBuild = !savedQuote;
+      await persistQuote(job, firstBuild ? 'create' : 'save');
+      if (!leadEmailSent) { await sendEmail(job); leadEmailSent = true; } // retry first email if delivery previously failed
     } catch (err) {
-      console.error('Quotation email failed', err.status, err.code, err);
-      errBox.textContent = CFG.COPY.sendFailed + (err.status ? ` (Error ${err.status}${err.code ? ': ' + err.code : ''})` : '');
+      console.error('Quotation save/email failed', err.status, err.code, err);
+      errBox.textContent = (err.code === 'd1_not_configured'
+        ? 'Quotation storage is not connected yet. Please try again shortly.'
+        : CFG.COPY.sendFailed) + (err.status ? ` (Error ${err.status}${err.code ? ': ' + err.code : ''})` : '');
       errBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
       building = false; sendBtn.disabled = false; sendBtn.textContent = 'Build Quotation';
-      return;                                            // no popup when nothing was sent
+      return;
     }
     last = job;
     if (blobUrl) URL.revokeObjectURL(blobUrl);
     blobUrl = URL.createObjectURL(new Blob([job.bytes], { type: 'application/pdf' }));
-    qstatus.className = 'qstatus ok'; qstatus.textContent = CFG.COPY.sentOk;
+    qstatus.className = 'qstatus ok'; qstatus.textContent = savedQuote.revision === 1 ? CFG.COPY.sentOk : `Saved · Revision ${savedQuote.revision}`;
+    saveStatus.textContent = `Quotation saved · Revision ${savedQuote.revision}`;
     openQuote();
     renderViewer(job.bytes, blobUrl);
     building = false; sendBtn.disabled = false; sendBtn.textContent = 'Build Quotation';

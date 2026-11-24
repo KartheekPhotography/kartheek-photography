@@ -46,7 +46,7 @@ Where things live
 - functions/api/enquiry.js   Cloudflare Pages Function: receives the form + PDF and sends the email through Resend (attachment included)
 
 Email: needs the RESEND_API_KEY secret in Cloudflare (unchanged). Recipient and sender are at the bottom of functions/api/enquiry.js.
-Every click on Build Quotation sends a new email. The popup opens only if that email was sent; otherwise the visitor sees an error on the form.
+The first successful Build Quotation saves the lead and emails the studio. Later edits are saved as revisions without repeated emails. The customer can use Submit quotation in the PDF popup to send the latest PDF as a second notification.
 
 If sending fails, check in this order: (1) the site must be deployed on Cloudflare Pages with the functions/ folder (use Git deploy or `wrangler pages deploy`; drag-and-drop uploads and other hosts do not run functions), (2) RESEND_API_KEY is set under Pages > Settings > Environment variables (Production), then redeploy, (3) the domain kartheekphotography.com is verified in Resend, because the sender is enquiries@kartheekphotography.com. The error on the form shows the code (404/405 = function not deployed, 500 no_api_key = key missing, 502 resend_rejected = Resend refused, see Cloudflare logs).
 To change PDF colours, edit PDF.colors in js/quote-config.js.
@@ -63,3 +63,34 @@ The gallery albums and the film boxes are centred when they fit. If there are mo
 ## Gallery boxes
 Each category shows 4 albums across on a computer (3 on tablets, 2 on phones). More albums than that scroll with the side arrows.
 The extra albums use sample pictures (carousel-4, carousel-5 ...). Replace the pictures in those folders with yours, or delete a folder and remove its title from the CATS list in js/main.js.
+
+
+## Cloudflare D1 quotation integration (new)
+
+The quote builder now expects a D1 database binding named `DB` on the Pages Functions runtime.
+The existing pricing engine (`js/quote-pricing.js`) and PDF renderer (`js/quote-pdf.js`) are unchanged.
+
+### Database setup
+1. In Cloudflare, create a D1 database named `kartheek-quotes`.
+2. Add a D1 binding named `DB` to the Pages project (Pages > Settings > Functions > D1 database bindings).
+3. Run the migration from this project root:
+   `npx wrangler d1 migrations apply kartheek-quotes --remote`
+   If you use Wrangler configuration, copy the binding from `wrangler.pages.toml.example` and replace the database ID.
+4. Deploy the Pages project again.
+
+The new `/api/quote` endpoint stores a quote, updates its latest selection and creates a revision record.
+The first successful build emails the studio once. Rebuilding updates the stored quote without sending another email.
+The customer can explicitly choose **Submit quotation** in the PDF popup to send the latest PDF as a second notification and mark the record submitted.
+The mandatory customer fields are now name, mobile, email, location and event date.
+
+### 90-day retention
+The `expires_at` value is refreshed to 90 days after every successful save. `cleanup-worker.js` deletes expired quote records and revision rows.
+Deploy this small scheduled Worker separately using `wrangler.cleanup.toml.example` (copy it to `wrangler.cleanup.toml`, replace the D1 database ID, then run `npx wrangler deploy --config wrangler.cleanup.toml`). It runs daily at 00:17 UTC.
+
+### Important current scope
+- D1 stores the latest customer details, selections, quote summary and revision history.
+- PDFs are generated in the browser and attached to the first-build / explicit-submit emails; PDFs are not stored in D1.
+- The owner dashboard and customer resume-link flow are not included in this integration stage.
+- If a customer edits after the first build, changes are saved to D1 automatically after a short pause. The owner can access the latest saved record once the dashboard is added.
+- If the customer never presses Submit, the record remains `generated` (not a confirmed booking) and is still retained until 90 days after its last save.
+- Do not add the D1 database ID or any secret to client-side JavaScript. `RESEND_API_KEY` remains a server-side Cloudflare secret.

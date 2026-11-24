@@ -39,7 +39,7 @@ export async function onRequestPost({ request, env }) {
     }
 
     // Validate required fields
-    const requiredFields = ["name", "city", "phone"];
+    const requiredFields = ["name", "city", "phone", "email", "date"];
 
     for (const field of requiredFields) {
       if (!details[field]) {
@@ -48,6 +48,10 @@ export async function onRequestPost({ request, env }) {
           message: `Please provide ${field}.`,
         });
       }
+    }
+
+    if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(details.email || "")) {
+      return response(400, { success: false, code: "invalid_email", message: "Please provide a valid email address." });
     }
 
     if (!formData.has("consent")) {

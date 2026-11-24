@@ -1,0 +1,7 @@
+# Copy the D1 binding into your existing Pages project's Wrangler configuration,
+# or add the same binding in Cloudflare Dashboard > Pages > Settings > Functions.
+[[d1_databases]]
+binding = "DB"
+database_name = "kartheek-quotes"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+migrations_dir = "migrations"

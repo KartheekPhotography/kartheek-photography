@@ -48,13 +48,17 @@
       </div>
       <div class="fgrid">
         <div class="q"><label for="phone">Contact number<i class="req" aria-hidden="true">*</i></label><input type="tel" id="phone" name="phone" placeholder="10-digit mobile number" inputmode="tel" autocomplete="tel" required></div>
-        <div class="q"><label for="dateBtn">Wedding or event date</label><div class="dp" id="dp"><input type="hidden" id="date" name="date"><button type="button" class="dpbtn" id="dateBtn" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg><span id="dateText" class="dpph">Select a date</span></button><div class="dpback" id="dpback" hidden></div><div class="dpop" id="dpop" role="dialog" aria-label="Choose a date" hidden></div></div></div>
+        <div class="q"><label for="email">Email address<i class="req" aria-hidden="true">*</i></label><input type="email" id="email" name="email" placeholder="Your email address" autocomplete="email" required></div>
+      </div>
+      <div class="fgrid">
+        <div class="q"><label for="dateBtn">Wedding or event date<i class="req" aria-hidden="true">*</i></label><div class="dp" id="dp"><input type="hidden" id="date" name="date"><button type="button" class="dpbtn" id="dateBtn" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg><span id="dateText" class="dpph">Select a date</span></button><div class="dpback" id="dpback" hidden></div><div class="dpop" id="dpop" role="dialog" aria-label="Choose a date" hidden></div></div></div>
       </div>
       <div class="q" id="evBox" data-field="events"></div>
       <div class="q" id="panels"></div>
       <div class="q"><label for="comments">Anything else we should know?</label><textarea id="comments" name="comments" rows="4" placeholder="Tell us if we missed any event or if you have something special in mind: a ritual, a location, a style you love, or a shot you don't want us to miss."></textarea></div>
       <div class="q"><label class="consent"><input type="checkbox" id="consent" name="consent" value="Agreed" required><span>I agree to be contacted about this enquiry.<i class="req" aria-hidden="true">*</i></span></label></div>
       <button class="btn send" id="send" type="submit">Build Quotation</button>
+      <p class="note" id="saveStatus" role="status" aria-live="polite"></p>
       <div class="err" id="err" role="alert" aria-live="assertive"></div>
     </div>
     <aside class="side">
@@ -104,7 +108,7 @@
   <div class="qbox" tabindex="-1">
     <div class="qhead"><h3>Your quotation</h3><button type="button" class="qx" id="qclose" aria-label="Close">&times;</button></div>
     <div class="qview" id="qview" aria-live="polite"></div>
-    <div class="qbar"><span class="qstatus" id="qstatus" role="status"></span><span class="qbtns"><button type="button" class="btn ghost" id="qedit">Edit</button><button type="button" class="btn" id="qdl">Download</button></span></div>
+    <div class="qbar"><span class="qstatus" id="qstatus" role="status"></span><span class="qbtns"><button type="button" class="btn ghost" id="qedit">Edit</button><button type="button" class="btn ghost" id="qsubmit">Submit quotation</button><button type="button" class="btn" id="qdl">Download</button></span></div>
   </div>
 </div>
 
