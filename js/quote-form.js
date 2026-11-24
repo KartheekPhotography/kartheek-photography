@@ -67,7 +67,7 @@
   /* "raghavi reddy" -> "Raghavi Reddy" (first letter of each word; the rest is left as typed) */
   const titleCase = s => s.trim().replace(/\s+/g, ' ').replace(/(^|[\s-])(\p{L})/gu, (m, a, b) => a + b.toLocaleUpperCase());
   const getClient = () => ({ name: titleCase($('#name').value), phone: $('#phone').value.trim(), city: titleCase($('#city').value) });
-  let savedQuote = null, autosaveTimer = null, leadEmailSent = false;
+  let savedQuote = null, leadEmailSent = false;
   async function persistQuote(job, action) {
     const payload = {
       action, id: savedQuote && savedQuote.id, token: savedQuote && savedQuote.token,
@@ -88,27 +88,6 @@
     else savedQuote = { ...savedQuote, revision: data.revision, status: data.status };
     job.quoteId = savedQuote.id; job.revision = savedQuote.revision;
     return data;
-  }
-  function scheduleAutosave() {
-    if (!savedQuote || building) return;
-    clearTimeout(autosaveTimer);
-    autosaveTimer = setTimeout(async () => {
-      try {
-        const client = getClient(), selection = getSelection();
-        const errs = Pricing.validate(client, selection);
-        if (errs.length || !$('#date').value) return;
-        const quote = Pricing.priceQuote(selection);
-        const job = { client, selection, quote };
-        await persistQuote(job, 'save');
-        if (last) { last.client = client; last.selection = selection; last.quote = quote; last.revision = job.revision; }
-        qstatus.className = 'qstatus ok'; qstatus.textContent = `Saved · Revision ${job.revision}`;
-        saveStatus.textContent = `Your quotation is saved (revision ${job.revision}).`;
-      } catch (err) {
-        console.warn('Quotation autosave failed', err);
-        qstatus.className = 'qstatus'; qstatus.textContent = 'Changes not saved — please try again';
-        saveStatus.textContent = 'Changes not saved. Please check your connection.';
-      }
-    }, 900);
   }
 
   /* ---------- live behaviour ---------- */
@@ -148,7 +127,7 @@
     if (first) { first.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (first.focus && first.tagName === 'INPUT') first.focus({ preventScroll: true }); }
   }
 
-  F.addEventListener('input', () => { sync(); clearErrors(); scheduleAutosave(); });
+  F.addEventListener('input', () => { sync(); clearErrors(); });
   F.addEventListener('change', e => {
     // Couple Haldi replaces a single Bride/Groom pick (they cannot be combined)
     if (e.target.matches('[data-opt=couple]') && e.target.checked) {
@@ -282,7 +261,6 @@
     if (!$('#consent').checked) errs.push({ field: 'consent', msg: 'Please tick the box so we can contact you about your quotation.' });
     if (errs.length) { showErrors(errs); return; }
 
-    clearTimeout(autosaveTimer);
     building = true; sendBtn.disabled = true; sendBtn.textContent = CFG.COPY.building;
     let job;
     try {
