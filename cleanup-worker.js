@@ -33,7 +33,7 @@ async function sendInactivityEmail(row, env) {
       </td></tr>
       <tr><td style="background:#faf7f2;padding:18px;text-align:center;color:#9a8f80;font-size:12px">Automated 10-minute quotation inactivity follow-up · kartheekphotography.com</td></tr>
     </table></body></html>`;
-  const subject = `Re: New Quotation - ${String(row.customer_name).replace(/[\\r\\n]+/g, " ")} - ₹${inr(quote.total)}`;
+  const subject = `Final Quotation Submitted - ${String(row.customer_name).replace(/[\\r\\n]+/g, " ")} - ₹${inr(quote.total)}`;
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },

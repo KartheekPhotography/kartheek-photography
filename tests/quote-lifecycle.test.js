@@ -79,6 +79,11 @@ test("scheduled Worker checks 10-minute inactivity and sends one email", () => {
   assert(/api\.resend\.com\/emails/.test(worker));
   assert(/attachments:\s*\[\{ filename, content: base64\(pdfBytes\) \}\]/.test(worker));
 });
+test("both second-notification paths use the same subject format", () => {
+  assert(/subject:\s*`\\$\\{isFinal \\? "Final Quotation Submitted" : "New Quotation"\\}/.test(enquiry));
+  assert(/const subject = `Final Quotation Submitted -/.test(worker));
+  assert(!/const subject = `Re: New Quotation -/.test(worker));
+});
 test("migration contains inactivity timestamps", () => {
   assert(/last_activity_at/.test(migration));
   assert(/inactivity_email_claimed_at/.test(migration));
