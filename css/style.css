@@ -1618,3 +1618,7 @@ input.bad { outline-offset:0 }
   #qb .qbtns { gap: 8px; }
   #qb .qbtns .btn { flex: 1 1 28%; min-width: 0; padding: 10px 9px; font-size: 13px; }
 }
+
+
+html.off-aperture .fx-bg .aperture { display:none }
+html.off-beam #hero::before { display:none }
