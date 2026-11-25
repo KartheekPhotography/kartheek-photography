@@ -359,19 +359,24 @@ if (matchMedia('(pointer: coarse)').matches) {
     'Beyond what is seen, lies everything worth remembering.The quiet emotions, the fleeting moments and the beautiful imperfections that make every story extraordinary. Captured with intention, preserved with meaning.';
 }
 
+/* cached size + paused when the headline is off-screen / tab hidden
+   (same animation, but no forced layout every frame) */
+let hlW = 0, hlH = 0, hlVisible = true;
+const measureHl = () => {
+  const r = hl.getBoundingClientRect();
+  hlW = r.width; hlH = r.height;
+};
+measureHl();
+addEventListener('resize', measureHl);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(measureHl);
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver(es => { hlVisible = es[0].isIntersecting; }).observe(hl);
+}
+
 (function loop(t) {
-  if (!moved) {
-    const rect = hl.getBoundingClientRect();
-
-    hl.style.setProperty(
-      '--x',
-      (rect.width * 0.5 + Math.sin(t / 1100) * rect.width * 0.4) + 'px'
-    );
-
-    hl.style.setProperty(
-      '--y',
-      (rect.height * 0.5 + Math.cos(t / 800) * rect.height * 0.15) + 'px'
-    );
+  if (!moved && hlVisible && !document.hidden) {
+    hl.style.setProperty('--x', (hlW * 0.5 + Math.sin(t / 1100) * hlW * 0.4) + 'px');
+    hl.style.setProperty('--y', (hlH * 0.5 + Math.cos(t / 800) * hlH * 0.15) + 'px');
   }
 
   requestAnimationFrame(loop);

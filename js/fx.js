@@ -9,6 +9,9 @@
   const root = document.documentElement;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine = matchMedia('(pointer: fine)').matches;
+  const bgEl = document.querySelector('.fx-bg');
+  const progEl = document.querySelector('.fx-prog');
+  const heroEl = document.getElementById('hero');
 
   /* scroll progress + parallax variables (read by the CSS) */
   let queued = false;
@@ -18,9 +21,9 @@
     requestAnimationFrame(() => {
       const y = scrollY;
       const max = Math.max(1, root.scrollHeight - innerHeight);
-      root.style.setProperty('--p', Math.min(1, y / max).toFixed(4));
-      root.style.setProperty('--sy', y.toFixed(0));
-      root.style.setProperty('--sp', Math.min(1, y / (innerHeight * 0.85)).toFixed(3));
+      if (progEl) progEl.style.setProperty('--p', Math.min(1, y / max).toFixed(4));
+      if (bgEl) bgEl.style.setProperty('--sy', y.toFixed(0));
+      if (heroEl) heroEl.style.setProperty('--sp', Math.min(1, y / (innerHeight * 0.85)).toFixed(3));
       queued = false;
     });
   };

@@ -190,3 +190,16 @@ footer.sf > * { position:relative }
 .build-form { margin-top:0 }
 .side { grid-template-rows:auto 1fr }
 @media (max-width:860px) { .side { grid-template-rows:none } }
+
+
+/* ---------- stability fix (no visual change) ----------
+   Gives the animated top-of-page pieces their own compositor layers so the
+   phone GPU stops dropping/re-rasterising them (the "blinking"). */
+.fx-bg { transform:translateZ(0); contain:strict }
+.fx-bg .aperture, .fx-bg .spot { will-change:transform; backface-visibility:hidden }
+#hero::before { will-change:opacity, scale; backface-visibility:hidden }
+.hl { isolation:isolate; transform:translateZ(0); -webkit-backface-visibility:hidden; backface-visibility:hidden }
+.hl .bl, .hl .sh { will-change:transform; backface-visibility:hidden }
+.cw .car { isolation:isolate; backface-visibility:hidden }
+.cw .slide { will-change:opacity, transform; backface-visibility:hidden }
+.fx-grain, .fx-vig { transform:translateZ(0) }
