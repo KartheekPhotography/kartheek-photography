@@ -79,6 +79,11 @@ test("scheduled Worker checks 10-minute inactivity and sends one email", () => {
   assert(/api\.resend\.com\/emails/.test(worker));
   assert(/attachments:\s*\[\{ filename, content: base64\(pdfBytes\) \}\]/.test(worker));
 });
+test("second-notification email heading is Final Quotation in both paths", () => {
+  assert(/const emailHeading = isFinal \? "Final Quotation" : "New Quotation"/.test(enquiry));
+  assert(/Final Quotation<\/div>/.test(worker));
+  assert(!/Quotation follow-up<\/div>/.test(worker));
+});
 test("both second-notification paths use the same subject format", () => {
   assert(/subject:\s*`\\$\\{isFinal \\? "Final Quotation Submitted" : "New Quotation"\\}/.test(enquiry));
   assert(/const subject = `Final Quotation Submitted -/.test(worker));

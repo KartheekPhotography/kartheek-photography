@@ -10,30 +10,32 @@ function base64(bytes) {
 const stamp = () => new Date().toISOString().replace("T", " ").replace(/\.\d{3}Z$/, "");
 
 async function sendInactivityEmail(row, env) {
+  const customerName = String(row.customer_name || "Client").trim().replace(/\s+/g, " ");
   if (!env.RESEND_API_KEY) throw new Error("RESEND_API_KEY is missing");
   const quote = JSON.parse(row.quote_json || "{}");
   const object = await env.QUOTE_PDFS.get(`quotes/${row.id}.pdf`);
   if (!object) throw new Error(`Latest PDF is missing for quote ${row.id}`);
   const pdfBytes = new Uint8Array(await object.arrayBuffer());
-  const filename = `Quotation-${String(row.customer_name || "Client").replace(/[^\p{L}\p{N}_-]+/gu, "_")}.pdf`;
+  const filename = `Quotation-${customerName.replace(/[^\p{L}\p{N}_-]+/gu, "_")}.pdf`;
   const rows = (quote.lines || []).slice(0, 40).map(line => `
     <tr><td style="padding:10px 0;border-bottom:1px solid #eee6da;color:#2b2622">${escapeHtml(line.name)}</td>
     <td style="padding:10px 0;border-bottom:1px solid #eee6da;text-align:right;color:#2b2622;white-space:nowrap">₹${inr(line.amount)}</td></tr>`).join("");
   const html = `<!doctype html><html><body style="margin:0;background:#f4efe8;padding:28px 12px;font-family:Arial,sans-serif">
     <table role="presentation" style="max-width:600px;width:100%;margin:auto;background:#fff;border-radius:12px;overflow:hidden">
       <tr><td style="background:#1f1b18;padding:30px;text-align:center;color:#c9a46a;font-size:11px;letter-spacing:3px;text-transform:uppercase">Kartheek Photography
-      <div style="color:#fff;font:26px Georgia,serif;letter-spacing:0;margin-top:14px">Quotation follow-up</div></td></tr>
+      <div style="width:40px;height:1px;background:#c9a46a;margin:16px auto"></div>
+      <div style="color:#fff;font:26px Georgia,serif;letter-spacing:0;margin-top:0">Final Quotation</div></td></tr>
       <tr><td style="padding:28px 32px;color:#5a524a;line-height:1.65">
-        <p><strong>${escapeHtml(row.customer_name)}</strong> generated this quotation on the website, but has not explicitly submitted it.</p>
+        <p><strong>${escapeHtml(customerName)}</strong> generated this quotation on the website, but has not explicitly submitted it.</p>
         <p>This is the latest saved version after 10 minutes of inactivity. The quotation PDF is attached for your reference.</p>
         <p style="font-size:12px;color:#9a8f80">Quote reference: ${escapeHtml(row.id)} · Revision ${row.revision}</p>
         <table role="presentation" width="100%" style="border-collapse:collapse">${rows}</table>
         <p style="margin-top:18px;padding:14px 16px;background:#faf7f2;color:#9a6b2f;font-weight:bold">Total: ₹${inr(quote.total)}</p>
-        <p style="font-size:13px;color:#81766a">Customer: ${escapeHtml(row.customer_name)}<br>Mobile: ${escapeHtml(row.customer_phone)}<br>Location: ${escapeHtml(row.event_location)}<br>Event date: ${escapeHtml(row.event_date)}</p>
+        <p style="font-size:13px;color:#81766a">Customer: ${escapeHtml(customerName)}<br>Mobile: ${escapeHtml(row.customer_phone)}<br>Location: ${escapeHtml(row.event_location)}<br>Event date: ${escapeHtml(row.event_date)}</p>
       </td></tr>
       <tr><td style="background:#faf7f2;padding:18px;text-align:center;color:#9a8f80;font-size:12px">Automated 10-minute quotation inactivity follow-up · kartheekphotography.com</td></tr>
     </table></body></html>`;
-  const subject = `Final Quotation Submitted - ${String(row.customer_name).replace(/[\\r\\n]+/g, " ")} - ₹${inr(quote.total)}`;
+  const subject = `Final Quotation Submitted - ${customerName.replace(/[\r\n]+/g, " ")} - ₹${inr(quote.total)}`;
   const response = await fetch("https://api.resend.com/emails", {
     method: "POST",
     headers: { Authorization: `Bearer ${env.RESEND_API_KEY}`, "Content-Type": "application/json" },

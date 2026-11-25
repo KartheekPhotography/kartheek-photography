@@ -139,7 +139,8 @@ export async function onRequestPost({ request, env }) {
       `)
       .join("");
 
-    const safeName = escapeHtml(details.name);
+    const customerName = String(details.name || "").trim().replace(/\s+/g, " ");
+    const safeName = escapeHtml(customerName);
     const emailType = String(formData.get("email_type") || "first");
     if (!["first", "final"].includes(emailType)) {
       return response(400, { success: false, code: "invalid_email_type" });
@@ -201,7 +202,7 @@ export async function onRequestPost({ request, env }) {
           </tr>`
       : "";
 
-    const emailHeading = isFinal ? "Quotation Submitted" : "New Quotation";
+    const emailHeading = isFinal ? "Final Quotation" : "New Quotation";
     const emailIntro = isFinal
       ? "The customer has explicitly submitted their latest quotation. The final PDF is attached."
       : "just built a quotation on your website. Their details and the quotation are below, and the PDF is attached.";
@@ -290,7 +291,7 @@ export async function onRequestPost({ request, env }) {
     const emailPayload = {
       from: "Kartheek Photography <enquiries@kartheekphotography.com>",
       to: ["kartheekphotography.kp@gmail.com"],
-      subject: `${isFinal ? "Final Quotation Submitted" : "New Quotation"} - ${details.name.replace(/[\r\n]+/g, " ")} - ₹${inr(quote.total)}`,
+      subject: `${isFinal ? "Final Quotation Submitted" : "New Quotation"} - ${customerName.replace(/[\r\n]+/g, " ")} - ₹${inr(quote.total)}`,
       html: emailHtml,
       headers: quoteId ? { "X-Quote-ID": quoteId } : undefined,
       attachments: [{ filename: fileName, content: pdfBase64 }],
