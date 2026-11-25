@@ -192,14 +192,19 @@ footer.sf > * { position:relative }
 @media (max-width:860px) { .side { grid-template-rows:none } }
 
 
-/* ---------- stability fix (no visual change) ----------
-   Gives the animated top-of-page pieces their own compositor layers so the
-   phone GPU stops dropping/re-rasterising them (the "blinking"). */
-.fx-bg { transform:translateZ(0); contain:strict }
-.fx-bg .aperture, .fx-bg .spot { will-change:transform; backface-visibility:hidden }
-#hero::before { will-change:opacity, scale; backface-visibility:hidden }
-.hl { isolation:isolate; transform:translateZ(0); -webkit-backface-visibility:hidden; backface-visibility:hidden }
-.hl .bl, .hl .sh { will-change:transform; backface-visibility:hidden }
-.cw .car { isolation:isolate; backface-visibility:hidden }
-.cw .slide { will-change:opacity, transform; backface-visibility:hidden }
-.fx-grain, .fx-vig { transform:translateZ(0) }
+/* ---------- stability fix for high-density phones (no visual change) ----------
+   Symptom: headline sharp layer, hero photo and parts of the box vanish while
+   scrolling = the GPU runs out of time to draw big layers ("checkerboarding").
+   1) The aperture SVG (blur + shadow + mask, ~2000px wide on phones) was being
+      fully re-drawn every frame by its spin animations. Same rotation, but now
+      updated in small steps (~16 times a second instead of 120) on touch screens.
+   2) On touch screens the 3D tilt is never used (mouse only) but its perspective
+      + rotate(0deg) still forced a 3D layer on the hero photo box. Removed there;
+      the picture is identical because the angles are 0. */
+@media (hover:none) {
+  .aperture .spin  { animation-timing-function:steps(1440,end) }
+  .aperture .spin2 { animation-timing-function:steps(1440,end) }
+  .cw { perspective:none }
+  #heroCar .car { transform:none; transition:none }
+}
+#hero::before { will-change:opacity }
