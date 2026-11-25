@@ -22,7 +22,7 @@
       const y = scrollY;
       const max = Math.max(1, root.scrollHeight - innerHeight);
       if (progEl) progEl.style.setProperty('--p', Math.min(1, y / max).toFixed(4));
-      if (bgEl) bgEl.style.setProperty('--sy', y.toFixed(0));
+      if (bgEl && fine) bgEl.style.setProperty('--sy', y.toFixed(0));
       if (heroEl) heroEl.style.setProperty('--sp', Math.min(1, y / (innerHeight * 0.85)).toFixed(3));
       queued = false;
     });

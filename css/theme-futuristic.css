@@ -68,8 +68,14 @@ html { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; sc
     clip-path:polygon(44% 0,56% 0,92% 100%,8% 100%); filter:blur(46px);
     opacity:calc(.95 - var(--sp)*.95); animation:breathe 7s ease-in-out infinite }
 @keyframes breathe { 50% { scale:1.07 1 } }
-.aperture .spin { transform-origin:50% 50%; animation:spin 90s linear infinite }
-.aperture .spin2 { transform-origin:50% 50%; animation:spin 140s linear infinite reverse }
+/* Explicit SVG viewBox centre avoids mobile Chrome using each path's
+   individual bounding box as the rotation origin. */
+.aperture .spin { transform-box:view-box; transform-origin:50% 50%; animation:spin 90s linear infinite }
+.aperture .spin2 { transform-box:view-box; transform-origin:50% 50%; animation:spin 140s linear infinite reverse }
+@media (max-width:700px) {
+    /* Keep the two aperture animations; remove only scroll-driven parent rotation. */
+    .fx-bg .aperture { rotate:0deg }
+}
 @keyframes spin { to { transform:rotate(360deg) } }
 
 /* hero carousel = a viewfinder */
@@ -228,33 +234,17 @@ html.off-blur *, html.off-blur *::before, html.off-blur *::after { -webkit-backd
     rgba(224,169,109,.09) 50%, transparent 85%);
 }
 
-/* ---------- mobile aperture stability: one SVG, same two rotations ----------
-   The previous mobile treatment split the aperture into three separately filtered,
-   masked SVG surfaces. On high-density Chrome displays those large filtered surfaces
-   could repeatedly repaint. Keep the same artwork in one SVG and animate only the
-   two inner geometry groups; the glow/fade stay on the single parent surface. */
-.fx-bg svg.ap2 { display:none }
+/* ---------- single aperture on every screen ----------
+   Keep one centered SVG. On touch phones, remove scroll-linked rotation and
+   expensive outer effects to prevent Chrome repaint flicker while scrolling. */
+.fx-bg .ap2 { display:none }
 @media (max-width:700px) {
-  .fx-bg svg.aperture { display:none }
-  .fx-bg svg.ap2 {
+  .fx-bg svg.aperture {
     display:block;
-    width:min(1080px,135vmin);
-    height:auto;
-    aspect-ratio:1;
-    filter:drop-shadow(0 0 26px rgba(224,169,109,.28)) blur(.6px);
-    -webkit-mask-image:radial-gradient(circle,#000 55%,transparent 74%);
-    mask-image:radial-gradient(circle,#000 55%,transparent 74%);
-    rotate:none;
-    transform:translateZ(0);
-    backface-visibility:hidden;
+    filter:none;
+    -webkit-mask-image:none;
+    mask-image:none;
+    rotate:0deg;
   }
-  .fx-bg svg.ap2 .spin,
-  .fx-bg svg.ap2 .spin2 {
-    transform-box:fill-box;
-    transform-origin:center;
-    backface-visibility:hidden;
-    will-change:transform;
-  }
-  .fx-bg svg.ap2 .spin { animation:spin 90s linear infinite }
-  .fx-bg svg.ap2 .spin2 { animation:spin 140s linear infinite reverse }
+  .fx-bg .ap2 { display:none }
 }
