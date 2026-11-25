@@ -151,7 +151,7 @@ html { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; sc
 #lb,#vb { -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); background:rgba(5,5,6,.84) }
 #lb .big,#vb .frame { border:1px solid var(--hair-2); box-shadow:0 0 140px -30px var(--glow),0 40px 100px -30px #000 }
 .qmodal { -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); background:rgba(5,5,6,.86) }
-.qbox { border-color:var(--hair-2); border-radius:26px; background:linear-gradient(160deg,#1a1917,#111114); box-shadow:0 50px 110px -30px #000,0 0 80px -34px var(--glow) }
+.qbox { position:relative; border-color:var(--hair); border-radius:30px; background:linear-gradient(160deg,#1a1917,#111114); box-shadow:0 50px 110px -30px #000,0 0 80px -34px var(--glow) }
 
 /* ---------- footer ---------- */
 footer.sf { position:relative; overflow:hidden }
@@ -176,3 +176,17 @@ footer.sf > * { position:relative }
     .fx-glow { display:none }
     #heroCar .car { transform:none !important }
 }
+
+/* ---------- one border language: Build your Quote box, side cards, quotation popup ---------- */
+.qbox::before { content:""; position:absolute; left:12%; right:12%; top:-1px; height:1px; z-index:3; pointer-events:none;
+    background:linear-gradient(90deg,transparent,var(--amber),transparent); box-shadow:0 0 22px var(--amber) }
+.qbox::after,.build-form::after { content:""; position:absolute; inset:0; border-radius:inherit; padding:1.5px; z-index:3; pointer-events:none;
+    background:conic-gradient(from var(--ang),transparent 0 72%,rgba(224,169,109,.95) 86%,transparent 100%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0); mask-composite:exclude;
+    animation:orbit 9s linear infinite }
+
+/* ---------- form + side cards: same top edge, same bottom edge ---------- */
+.enq { align-items:stretch }
+.build-form { margin-top:0 }
+.side { grid-template-rows:auto 1fr }
+@media (max-width:860px) { .side { grid-template-rows:none } }

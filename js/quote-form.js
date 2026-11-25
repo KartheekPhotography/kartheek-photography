@@ -294,6 +294,7 @@
     saveStatus.textContent = '';
     sendBtn.disabled = false; sendBtn.textContent = 'Build Quotation';
     $('#qsubmit').disabled = false; $('#qsubmit').textContent = 'Submit quotation';
+    $('#qdl').disabled = false; $('#qdl').textContent = 'Download';   // was left on "Preparing…" after a download
   }
 
   $('#qsubmit').onclick = async () => {
