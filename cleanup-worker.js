@@ -111,7 +111,12 @@ async function cleanupExpired(env) {
 
 export default {
   async scheduled(controller, env, ctx) {
-    if (controller.cron === "*/1 * * * *") ctx.waitUntil(processInactivity(env));
-    if (controller.cron === "17 0 * * *") ctx.waitUntil(cleanupExpired(env));
+    // Cloudflare may report the every-minute schedule in either form.
+    if (controller.cron === "*/1 * * * *" || controller.cron === "* * * * *") {
+      ctx.waitUntil(processInactivity(env));
+    }
+    if (controller.cron === "17 0 * * *") {
+      ctx.waitUntil(cleanupExpired(env));
+    }
   }
 };

@@ -242,37 +242,17 @@
     else sendBtn.focus({ preventScroll: true });
   }
   $('#qedit').onclick = () => closeQuote(true);
-  $('#qdl').onclick = async () => {
-    if (!last || !savedQuote || building) return;
-    const b = $('#qdl');
-    const downloadUrl = blobUrl;
-    const downloadName = last.fileName;
-    const finalJob = { ...last, bytes: last.bytes.slice() };
+  $('#qdl').onclick = () => {
+    if (!last || !blobUrl || building) return;
 
-    // Start the browser download directly inside the user's click gesture,
-    // before awaiting network requests (some browsers block delayed downloads).
+    // Download is only a local PDF action. It must not submit the quotation,
+    // send the final email, disable itself, or clear the customer's quote.
     const a = document.createElement('a');
-    a.href = downloadUrl; a.download = downloadName;
-    document.body.appendChild(a); a.click(); a.remove();
-
-    b.disabled = true;
-    const originalLabel = b.textContent;
-    b.textContent = 'Sending final quotation…';
-    try {
-      // A download click is also an explicit final submission: mark the quote
-      // submitted, persist the latest revision/PDF, and send the final email.
-      await persistQuote(finalJob, 'submit');
-      await uploadLatestPdf(finalJob);
-      await sendEmail(finalJob, 'final');
-      stopCountdown();
-      closeQuote(false);
-      resetQuotationForm();
-    } catch (err) {
-      console.error('Final quotation download/email failed', err);
-      qstatus.className = 'qstatus bad';
-      qstatus.textContent = 'Your download has started, but we could not send the final quotation notification. Please try again.';
-      b.disabled = false; b.textContent = originalLabel;
-    }
+    a.href = blobUrl;
+    a.download = last.fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
   };
 
   function resetQuotationForm() {
@@ -392,8 +372,9 @@
     last = job;
     if (blobUrl) URL.revokeObjectURL(blobUrl);
     blobUrl = URL.createObjectURL(new Blob([job.bytes], { type: 'application/pdf' }));
-    qstatus.className = 'qstatus ok'; qstatus.textContent = savedQuote.revision === 1 ? CFG.COPY.sentOk : `Saved · Revision ${savedQuote.revision}`;
-    saveStatus.textContent = `Quotation saved · Revision ${savedQuote.revision}`;
+    qstatus.className = 'qstatus ok';
+    qstatus.textContent = CFG.COPY.sentOk.replace(/^✓\\s*/, '');
+    saveStatus.textContent = 'Quotation saved';
     startCountdown(job.inactivityDeadline);
     openQuote();
     renderViewer(job.bytes, blobUrl);

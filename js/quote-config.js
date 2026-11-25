@@ -154,7 +154,7 @@
       building: 'Building…',
       sendFailed: "We couldn't send your quotation just now, so it hasn't been created. Please check your connection and try again, or message us on WhatsApp and we'll help right away.",
       buildFailed: "Something went wrong while building your quotation. Please try again, or message us on WhatsApp and we'll help right away.",
-      sentOk: '✓ Your quotation has been shared with Kartheek Photography. We will be in touch shortly.'
+      sentOk: 'Your quotation has been shared with Kartheek Photography. We will be in touch shortly.'
     },
 
     FILE_NAME: 'Quotation_{name}_{date}.pdf'   // {date} = DD-MM-YYYY
