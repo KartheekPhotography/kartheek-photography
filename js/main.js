@@ -66,10 +66,12 @@ const CATS = [
     id: 'haldi',
     title: 'Haldi',
     subs: [
-      'Haldi 1',
-      'Haldi 3',
-      'Haldi 4',
-      'Haldi 5'
+      'Nagendra & Pavani',
+      'Santhosh & Yanvita',
+      'Manasa',
+      'Sri Lekha',
+      'Sai & Geetha',
+      'Lakshmi',
     ]
   },
 ];
