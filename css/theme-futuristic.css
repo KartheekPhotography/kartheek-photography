@@ -211,3 +211,16 @@ footer.sf > * { position:relative }
 
 html.off-aperture .fx-bg .aperture { display:none }
 html.off-beam #hero::before { display:none }
+
+#hero::before {
+  filter: none;
+  background: linear-gradient(180deg,
+    rgba(255,228,184,0.170) 0px, rgba(255,228,183,0.195) 10px,
+    rgba(254,227,183,0.217) 20px, rgba(254,226,182,0.235) 30px,
+    rgba(254,226,181,0.249) 40px, rgba(254,225,180,0.259) 50px,
+    rgba(253,225,180,0.265) 60px, rgba(253,224,179,0.267) 72px,
+    rgba(252,223,178,0.265) 84px, rgba(252,222,176,0.260) 96px,
+    rgba(251,221,175,0.252) 110px, rgba(251,219,173,0.242) 125px,
+    rgba(250,218,171,0.230) 140px,
+    rgba(224,169,109,.09) 50%, transparent 85%);
+}
