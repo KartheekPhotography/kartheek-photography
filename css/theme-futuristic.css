@@ -1,0 +1,178 @@
+/* =====================================================================
+   KARTHEEK PHOTOGRAPHY — CINEMATIC / FUTURISTIC THEME
+   ---------------------------------------------------------------------
+   VISUAL LAYER ONLY. Loaded after style.css. It changes how things look
+   and move, never what they do. Same colour palette (dark + amber + cream).
+   To go back to the old look: remove the two lines for
+   css/theme-futuristic.css and js/fx.js from index.html.
+   ===================================================================== */
+
+@property --ang { syntax:'<angle>'; inherits:false; initial-value:0deg }
+
+:root {
+    --hair:rgba(224,169,109,.20);
+    --hair-2:rgba(224,169,109,.45);
+    --glow:rgba(224,169,109,.38);
+    --glass:rgba(20,20,24,.55);
+    --ease:cubic-bezier(.22,.8,.18,1);
+    --sy:0; --sp:0; --p:0;
+}
+html { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; scrollbar-color:#3a342b var(--bg); scrollbar-width:thin }
+::selection { background:rgba(224,169,109,.35); color:#fff }
+
+/* ---------- ambient world (fixed, behind everything) ---------- */
+.fx-bg { position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden }
+.fx-bg .spot { position:absolute; left:50%; top:-25vh; width:130vw; height:100vh; transform:translateX(-50%);
+    background:radial-gradient(50% 55% at 50% 0,rgba(224,169,109,.17),transparent 70%) }
+.fx-bg .grid { position:absolute; inset:0; opacity:.9;
+    background-image:linear-gradient(rgba(224,169,109,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(224,169,109,.045) 1px,transparent 1px);
+    background-size:72px 72px;
+    -webkit-mask-image:radial-gradient(75% 55% at 50% 18%,#000,transparent 78%);
+    mask-image:radial-gradient(75% 55% at 50% 18%,#000,transparent 78%) }
+.fx-bg .orb { position:absolute; border-radius:50%; filter:blur(90px); opacity:.5; will-change:transform }
+.fx-bg .o1 { width:46vw; height:46vw; left:-14vw; top:55vh; background:rgba(224,169,109,.13); animation:drift1 38s ease-in-out infinite alternate }
+.fx-bg .o2 { width:40vw; height:40vw; right:-12vw; top:8vh; background:rgba(127,154,168,.12); animation:drift2 46s ease-in-out infinite alternate }
+@keyframes drift1 { to { transform:translate3d(10vw,-14vh,0) scale(1.15) } }
+@keyframes drift2 { to { transform:translate3d(-9vw,16vh,0) scale(1.1) } }
+.fx-bg .aperture { position:absolute; left:50%; top:50%; width:min(1080px,135vmin); height:auto; aspect-ratio:1; translate:-50% -50%; color:var(--amber); opacity:.34;
+    filter:drop-shadow(0 0 26px rgba(224,169,109,.28)) blur(.6px); rotate:calc(var(--sy)*.03deg);
+    -webkit-mask-image:radial-gradient(circle,#000 55%,transparent 74%); mask-image:radial-gradient(circle,#000 55%,transparent 74%) }
+.fx-glow { position:fixed; left:0; top:0; width:680px; height:680px; margin:-340px 0 0 -340px; border-radius:50%; z-index:-1; pointer-events:none;
+    background:radial-gradient(circle,rgba(224,169,109,.11),transparent 62%); opacity:0; transition:opacity .8s; will-change:transform }
+.fx-glow.on { opacity:1 }
+.fx-grain { position:fixed; inset:0; z-index:35; pointer-events:none; opacity:.055;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") }
+.fx-vig { position:fixed; inset:0; z-index:34; pointer-events:none; background:radial-gradient(125% 95% at 50% 42%,transparent 58%,rgba(0,0,0,.42)) }
+.fx-prog { position:fixed; left:0; bottom:0; width:100%; height:2px; z-index:36; pointer-events:none; transform-origin:0 50%; transform:scaleX(var(--p));
+    background:linear-gradient(90deg,transparent,var(--amber)); box-shadow:0 0 14px var(--amber) }
+
+/* ---------- buttons: light sweep + glow ---------- */
+.btn { position:relative; overflow:hidden; isolation:isolate;
+    background:linear-gradient(180deg,#f7f2e9,#e3dbcb);
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.35),0 10px 30px -12px rgba(224,169,109,.6);
+    transition:transform .4s var(--ease),box-shadow .4s var(--ease),background .3s,border-color .3s,color .3s }
+.btn::after { content:""; position:absolute; inset:0; z-index:-1; transform:translateX(-130%);
+    background:linear-gradient(110deg,transparent 32%,rgba(224,169,109,.6) 50%,transparent 68%); transition:transform .9s var(--ease) }
+.btn:hover::after { transform:translateX(130%) }
+.btn:hover { transform:translateY(-2px); box-shadow:inset 0 0 0 1px rgba(255,255,255,.5),0 16px 40px -12px rgba(224,169,109,.85) }
+.btn:active { transform:translateY(0) scale(.98) }
+.ghost { background:rgba(255,255,255,.04); border:1px solid var(--hair-2); box-shadow:none; -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px) }
+.ghost:hover { border-color:var(--amber); background:rgba(224,169,109,.08); box-shadow:0 0 34px -8px var(--glow),inset 0 0 20px rgba(224,169,109,.12) }
+.ar:hover,.rarr:hover,.qx:hover { background:rgba(224,169,109,.9); color:#14110d; border-color:var(--amber); box-shadow:0 0 30px -4px var(--glow) }
+
+/* ---------- HERO: the stage ---------- */
+#hero { position:relative; overflow-x:clip }
+#hero > * { position:relative; z-index:2 }
+#hero::before { content:""; position:absolute; z-index:1; top:0; left:50%; width:min(1000px,135%); height:80%; translate:-50% 0; pointer-events:none;
+    background:linear-gradient(180deg,rgba(255,228,184,.34),rgba(224,169,109,.09) 50%,transparent 85%);
+    clip-path:polygon(44% 0,56% 0,92% 100%,8% 100%); filter:blur(46px);
+    opacity:calc(.95 - var(--sp)*.95); animation:breathe 7s ease-in-out infinite }
+@keyframes breathe { 50% { scale:1.07 1 } }
+.aperture .spin { transform-origin:50% 50%; animation:spin 90s linear infinite }
+.aperture .spin2 { transform-origin:50% 50%; animation:spin 140s linear infinite reverse }
+@keyframes spin { to { transform:rotate(360deg) } }
+
+/* hero carousel = a viewfinder */
+.cw { perspective:1600px }
+#heroCar { position:relative }
+#heroCar .car { border-color:var(--hair-2); border-radius:26px;
+    box-shadow:0 0 0 1px rgba(224,169,109,.07),0 60px 120px -50px rgba(224,169,109,.38),0 40px 90px -40px #000;
+    transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg)); transition:transform .55s var(--ease) }
+.ar { border-color:var(--hair-2); background:rgba(10,10,12,.45); transition:.35s var(--ease) }
+.dots button:before { height:2px; background:rgba(239,234,226,.2); border-radius:2px }
+.dots button.on:before { box-shadow:0 0 12px var(--amber) }
+.slide { transition:opacity 1.2s ease,transform 7s linear }
+
+/* ---------- sections & headings ---------- */
+/* chips + option pills = glass lenses */
+.chip,.opt span { background:rgba(255,255,255,.03); border:1px solid rgba(224,169,109,.2); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px) }
+.chip { transition:.35s var(--ease) }
+.chip:hover,.opt:hover span { border-color:var(--amber); box-shadow:0 0 26px -8px var(--glow); transform:translateY(-1px) }
+.chip.on,.opt input:checked+span,.opt.locked span { background:linear-gradient(135deg,rgba(224,169,109,.30),rgba(224,169,109,.08)); color:#fff6e6; border-color:var(--amber);
+    box-shadow:0 0 28px -6px var(--glow),inset 0 0 16px rgba(224,169,109,.16) }
+
+/* gallery cards: lit frames */
+.track { padding:14px 14px 40px; margin:-10px -14px -36px }
+.sub .car { border-radius:20px; border:1px solid var(--hair); box-shadow:0 30px 60px -36px #000;
+    transition:transform .7s var(--ease),box-shadow .7s var(--ease),border-color .5s }
+.sub .car::after { content:""; position:absolute; inset:0; z-index:1; pointer-events:none; border-radius:inherit; box-shadow:inset 0 0 70px rgba(0,0,0,.4) }
+.sub:hover .car { border-color:var(--hair-2) }
+.rarr { border-color:var(--hair-2); background:rgba(10,10,12,.7) }
+
+/* films: screening room */
+.vid { border-radius:20px; border:1px solid var(--hair); box-shadow:0 30px 60px -36px #000; transition:transform .7s var(--ease),box-shadow .7s var(--ease),border-color .5s }
+.vid:hover { transform:translateY(-8px); border-color:var(--hair-2); box-shadow:0 22px 34px -22px rgba(224,169,109,.40) }
+.vid img { filter:saturate(1.05) contrast(1.04) }
+.vid .pl { width:58px; height:58px; margin:-36px 0 0 -29px; border:1px solid rgba(239,234,226,.65); background:rgba(10,10,12,.35); box-shadow:0 0 34px rgba(224,169,109,.28); transition:.45s var(--ease) }
+.vid .pl::before { left:23px; top:18px; border-left-width:15px; border-top-width:10px; border-bottom-width:10px }
+.vid .pl::after { content:""; position:absolute; inset:-1px; border-radius:50%; border:1px solid var(--amber); animation:ring 2.6s ease-out infinite; pointer-events:none }
+@keyframes ring { 0% { transform:scale(1); opacity:.8 } 100% { transform:scale(1.9); opacity:0 } }
+.vid:hover .pl { background:var(--amber); border-color:var(--amber); box-shadow:0 0 50px rgba(224,169,109,.75); transform:scale(1.1) }
+.vid:hover .pl:before { border-left-color:#17130e }
+
+/* cards enter with a stagger when albums load / tabs switch */
+.subs .sub,.films .vid { animation:rise .9s var(--ease) backwards }
+.subs .sub:nth-child(2),.films .vid:nth-child(2) { animation-delay:.07s }
+.subs .sub:nth-child(3),.films .vid:nth-child(3) { animation-delay:.14s }
+.subs .sub:nth-child(4),.films .vid:nth-child(4) { animation-delay:.21s }
+.subs .sub:nth-child(n+5),.films .vid:nth-child(n+5) { animation-delay:.28s }
+@keyframes rise { from { opacity:0; transform:translateY(34px) scale(.97); filter:blur(6px) } to { opacity:1; transform:none; filter:none } }
+
+/* ---------- FORM: control panel ---------- */
+.build-form { position:relative; padding:clamp(22px,3.4vw,46px); border-radius:30px; border:1px solid var(--hair);
+    background:linear-gradient(160deg,rgba(30,28,24,.78),rgba(14,14,17,.72)); box-shadow:0 50px 110px -50px #000,inset 0 1px 0 rgba(255,255,255,.06) }
+.build-form::before { content:""; position:absolute; left:12%; right:12%; top:-1px; height:1px; background:linear-gradient(90deg,transparent,var(--amber),transparent); box-shadow:0 0 22px var(--amber); pointer-events:none }
+#enqForm input:not([type=checkbox]):not([type=radio]):not([type=hidden]),#enqForm textarea,#enqForm select,.dpbtn {
+    background:rgba(255,255,255,.035); border:1px solid rgba(224,169,109,.17); border-radius:14px; transition:border-color .35s,box-shadow .35s,background .35s }
+#enqForm input:not([type=checkbox]):not([type=radio]):not([type=hidden]):hover,#enqForm textarea:hover,.dpbtn:hover { border-color:rgba(224,169,109,.4) }
+#enqForm input:not([type=checkbox]):not([type=radio]):not([type=hidden]):focus-visible,#enqForm textarea:focus-visible,#enqForm select:focus-visible,.dpbtn:focus-visible {
+    outline:none; border-color:var(--amber); background:rgba(224,169,109,.05); box-shadow:0 0 0 4px rgba(224,169,109,.13),0 0 36px -6px var(--glow) }
+.panel { border-radius:18px; border:1px solid var(--hair); border-left:2px solid var(--amber); background:linear-gradient(135deg,rgba(224,169,109,.07),rgba(255,255,255,.015)); box-shadow:0 20px 50px -34px #000 }
+
+/* side cards with a travelling light on the border */
+.tbox { border-radius:26px; border:1px solid rgba(224,169,109,.14); background:linear-gradient(160deg,rgba(28,27,24,.85),rgba(14,14,17,.8)); box-shadow:0 40px 90px -50px #000 }
+.tbox::after { content:""; position:absolute; inset:0; border-radius:inherit; padding:1.5px; pointer-events:none;
+    background:conic-gradient(from var(--ang),transparent 0 72%,rgba(224,169,109,.95) 86%,transparent 100%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0); -webkit-mask-composite:xor; mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0); mask-composite:exclude;
+    animation:orbit 9s linear infinite }
+@keyframes orbit { to { --ang:360deg } }
+.steps li:before { background:rgba(224,169,109,.08); box-shadow:0 0 18px -2px var(--glow) }
+.steps li:after { background:linear-gradient(var(--amber),transparent); opacity:.45 }
+.rbtn { border-color:rgba(224,169,109,.16); border-radius:16px; background:rgba(255,255,255,.03); transition:.4s var(--ease) }
+.rbtn:hover { border-color:var(--amber); background:rgba(224,169,109,.08); transform:translateX(4px); box-shadow:0 0 30px -10px var(--glow) }
+.qr img { box-shadow:0 0 0 1px var(--hair-2),0 0 34px -8px var(--glow) }
+.form-countdown,.qcount-time { border-color:var(--hair) }
+
+/* date picker */
+.dpop { border-color:var(--hair-2); background:linear-gradient(160deg,#1d1c1a,#111114); box-shadow:0 40px 90px -24px #000,0 0 50px -20px var(--glow) }
+.dpday.on,.dpday.on:hover { box-shadow:0 0 22px -2px var(--glow) }
+
+/* modals / lightbox / film player */
+#lb,#vb { -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); background:rgba(5,5,6,.84) }
+#lb .big,#vb .frame { border:1px solid var(--hair-2); box-shadow:0 0 140px -30px var(--glow),0 40px 100px -30px #000 }
+.qmodal { -webkit-backdrop-filter:blur(18px); backdrop-filter:blur(18px); background:rgba(5,5,6,.86) }
+.qbox { border-color:var(--hair-2); border-radius:26px; background:linear-gradient(160deg,#1a1917,#111114); box-shadow:0 50px 110px -30px #000,0 0 80px -34px var(--glow) }
+
+/* ---------- footer ---------- */
+footer.sf { position:relative; overflow:hidden }
+footer.sf::before { content:""; position:absolute; left:50%; bottom:-180px; width:min(900px,120vw); height:360px; translate:-50% 0; pointer-events:none;
+    background:radial-gradient(50% 50% at 50% 50%,rgba(224,169,109,.28),transparent 70%); filter:blur(30px) }
+footer.sf > * { position:relative }
+.sf-line { height:1px; background:linear-gradient(90deg,transparent,var(--amber),transparent); box-shadow:0 0 22px var(--amber) }
+/* ---------- scroll reveal (activated by js/fx.js; content is visible without JS) ---------- */
+.fx-on .rv { opacity:0; transform:translateY(34px); filter:blur(8px);
+    transition:opacity 1.1s var(--ease) var(--d,0s),transform 1.1s var(--ease) var(--d,0s),filter 1.1s var(--ease) var(--d,0s) }
+.fx-on .rv.in { opacity:1; transform:none; filter:none }
+
+/* ---------- smaller screens ---------- */
+@media (max-width:700px) {
+    #heroCar .car { border-radius:16px }
+    .build-form { padding:20px 16px; border-radius:22px }
+    .tbox { border-radius:20px }
+    .fx-glow,.fx-bg .orb { display:none }
+}
+@media (hover:none) { .sub:hover .car,.vid:hover { transform:none } }
+@media (prefers-reduced-motion:reduce) {
+    .fx-glow { display:none }
+    #heroCar .car { transform:none !important }
+}
