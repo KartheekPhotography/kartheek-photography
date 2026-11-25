@@ -518,8 +518,8 @@ nav.scrolled {
         font-size:18px
     }
     nav a.btn {
-        padding:8px 14px;
-        font-size:14px
+        padding:8px 12px;
+        font-size:12px
     }
     .btn {
         padding:13px 22px
@@ -562,6 +562,9 @@ nav.scrolled {
         font:500 11px var(--bd);
         padding:10px 13px;
     }
+    .q label {
+    font:400 17px var(--hd);
+}
 }
 @media (prefers-reduced-motion:reduce) {
     * {
@@ -966,8 +969,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible {
         gap:0
     }
     .opt span {
-        font-size:14px;
-        padding:8px 14px
+        font-size:12px;
+        padding:8px 10px
+    }
+    .opts {
+        gap:7px
     }
 }
 @media (max-width:700px) {
