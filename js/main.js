@@ -27,7 +27,7 @@ const CATS = [
       'Harsha & Harika',
       'Sravan & Renuka',
       'Nagendra & Pavani',
-      'Nagasai & Geethavani',
+      'Nagasai & Geetha',
       'Lakshman & Dhanalakshmi',
       'Raja & Mahitha',
       'Charan & Priyanka',
@@ -54,11 +54,12 @@ const CATS = [
     id: 'engagement',
     title: 'Engagement',
     subs: [
-      'Engagement 1',
-      'Engagement 2',
-      'Engagement 3',
-      'Engagement 4',
-      'Engagement 5'
+      'Mahender & Swathi',
+      'Sai & Geetha',
+      'Santhosh & Yanvita',
+      'Ajay & Leela',
+      'Lakshman & Dhanalakshmi',
+      'Yeshwanth & Bhavana',
     ]
   },
   {
@@ -66,7 +67,6 @@ const CATS = [
     title: 'Haldi',
     subs: [
       'Haldi 1',
-      'Haldi 2',
       'Haldi 3',
       'Haldi 4',
       'Haldi 5'
