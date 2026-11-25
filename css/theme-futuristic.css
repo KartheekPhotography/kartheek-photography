@@ -211,6 +211,11 @@ footer.sf > * { position:relative }
 
 html.off-aperture .fx-bg .aperture { display:none }
 html.off-beam #hero::before { display:none }
+html.off-bg .fx-bg { display:none }
+html.off-grain .fx-grain { display:none }
+html.off-vig .fx-vig { display:none }
+html.off-mask .hl .sh { -webkit-mask-image:none; mask-image:none }
+html.off-blur *, html.off-blur *::before, html.off-blur *::after { -webkit-backdrop-filter:none !important; backdrop-filter:none !important }
 
 #hero::before {
   filter: none;
