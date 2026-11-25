@@ -1208,8 +1208,8 @@ section {
     border-top:1px dashed var(--line)
 }
 .qr img {
-    width:104px;
-    height:104px;
+    width:20%;
+    height:20%;
     border-radius:10px;
     background:#fff;
     flex:none
