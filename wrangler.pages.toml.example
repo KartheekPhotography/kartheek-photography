@@ -1,7 +1,13 @@
-# Copy the D1 binding into your existing Pages project's Wrangler configuration,
-# or add the same binding in Cloudflare Dashboard > Pages > Settings > Functions.
+# Example Pages project bindings. Replace the D1 database ID before using.
+name = "kartheek-photography"
+pages_build_output_dir = "."
+compatibility_date = "2026-11-25"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "kartheek-quotes"
 database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
-migrations_dir = "migrations"
+
+[[r2_buckets]]
+binding = "QUOTE_PDFS"
+bucket_name = "kartheek-quote-pdfs"

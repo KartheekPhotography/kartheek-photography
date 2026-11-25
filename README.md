@@ -32,7 +32,7 @@ Edit the FILMS list in js/main.js. Add one line per film:
 - The sample videos are placeholders. Replace them with yours.
 
 ## Quotation builder (Build your shoot form)
-The form builds a PDF quotation in the browser, emails it to the studio as an attachment, and shows it to the visitor in a popup (Download / Edit / Close).
+The form builds a PDF quotation in the browser, emails it to the studio as an attachment, and shows it to the visitor in a popup (Download / Edit / Submit quotation).
 No price is shown on the form. Prices only appear in the PDF.
 
 Where things live
@@ -46,7 +46,7 @@ Where things live
 - functions/api/enquiry.js   Cloudflare Pages Function: receives the form + PDF and sends the email through Resend (attachment included)
 
 Email: needs the RESEND_API_KEY secret in Cloudflare (unchanged). Recipient and sender are at the bottom of functions/api/enquiry.js.
-The first successful Build Quotation saves the lead and emails the studio. Later edits are saved as revisions without repeated emails. The customer can use Submit quotation in the PDF popup to send the latest PDF as a second notification.
+The first successful Build Quotation saves the lead and emails the studio. Later Builds save changed data as revisions without repeated emails. The customer can use Submit quotation in the PDF popup to send the latest PDF as a second notification.
 
 If sending fails, check in this order: (1) the site must be deployed on Cloudflare Pages with the functions/ folder (use Git deploy or `wrangler pages deploy`; drag-and-drop uploads and other hosts do not run functions), (2) RESEND_API_KEY is set under Pages > Settings > Environment variables (Production), then redeploy, (3) the domain kartheekphotography.com is verified in Resend, because the sender is enquiries@kartheekphotography.com. The error on the form shows the code (404/405 = function not deployed, 500 no_api_key = key missing, 502 resend_rejected = Resend refused, see Cloudflare logs).
 To change PDF colours, edit PDF.colors in js/quote-config.js.
@@ -91,6 +91,28 @@ Deploy this small scheduled Worker separately using `wrangler.cleanup.toml.examp
 - D1 stores the latest customer details, selections, quote summary and revision history.
 - PDFs are generated in the browser and attached to the first-build / explicit-submit emails; PDFs are not stored in D1.
 - The owner dashboard and customer resume-link flow are not included in this integration stage.
-- If a customer edits after the first build, changes are saved to D1 automatically after a short pause. The owner can access the latest saved record once the dashboard is added.
+- Customer selections remain in the browser until Build Quotation is clicked. Every successful Build saves the latest data to D1; a new revision is created only when the data changes. A no-change Build refreshes the 10-minute inactivity clock without creating a duplicate revision.
 - If the customer never presses Submit, the record remains `generated` (not a confirmed booking) and is still retained until 90 days after its last save.
 - Do not add the D1 database ID or any secret to client-side JavaScript. `RESEND_API_KEY` remains a server-side Cloudflare secret.
+
+
+### 10-minute inactivity follow-up (new)
+
+- The 10-minute countdown starts only after a successful Build Quotation and resets after every successful Build (including a no-change Build).
+- The countdown is a visual indicator only. The page does not auto-refresh at timeout.
+- A separate scheduled Cloudflare Worker checks every minute. If a quote is still `generated` and has had no successful Build for 10 minutes, it sends one reply-style follow-up email to the studio with the latest saved quotation PDF attached. Closing the customer's browser does not stop this process.
+- The follow-up subject begins with `Re: New Quotation` and includes the customer/quote details. The same `X-Quote-ID` header is included for correlation. This is reply-style grouping; exact inbox threading depends on the receiving mail client/provider.
+- The latest PDF is stored privately in the R2 bucket `kartheek-quote-pdfs`; D1 stores the quote data and revision history. The PDF is replaced on every successful Build.
+- A successful explicit Submit marks the quote `submitted`, sends the final email, suppresses inactivity follow-up, closes the quotation popup and resets the form. The popup has no X close control; Edit and successful Submit are its only close paths.
+- The scheduled Worker also retains the existing daily 90-day cleanup and removes the corresponding R2 PDF objects.
+
+#### Additional Cloudflare setup required
+
+1. Create the R2 bucket: `npx wrangler r2 bucket create kartheek-quote-pdfs`.
+2. In Pages > Settings > Bindings, add an R2 bucket binding named `QUOTE_PDFS` pointing to `kartheek-quote-pdfs`. Keep the D1 binding named `DB`.
+3. Apply the new migration after the existing initial migration: `npx wrangler d1 migrations apply kartheek-quotes --remote`.
+4. Copy `wrangler.cleanup.toml.example` to `wrangler.cleanup.toml`, replace `database_id`, and deploy the scheduled Worker: `npx wrangler deploy --config wrangler.cleanup.toml`.
+5. Add the Resend key to the scheduled Worker as a secret: `npx wrangler secret put RESEND_API_KEY --config wrangler.cleanup.toml`.
+6. Ensure the Pages project still has its own `RESEND_API_KEY` secret for the first and explicit-submit emails, then redeploy Pages.
+
+The scheduled Worker needs D1 binding `DB`, R2 binding `QUOTE_PDFS`, and the `RESEND_API_KEY` secret. The Pages Functions need D1 binding `DB`, R2 binding `QUOTE_PDFS`, and `RESEND_API_KEY`.

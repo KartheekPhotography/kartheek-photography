@@ -73,4 +73,11 @@
   });
   document.addEventListener('click', e => { if (!pop.hidden && !e.target.closest('#dp')) close(false); });
   show();
+  window.QuoteDatePickerReset = () => {
+    input.value = '';
+    show();
+    close(false);
+    view = new Date(today.getFullYear(), today.getMonth(), 1);
+    render();
+  };
 })();

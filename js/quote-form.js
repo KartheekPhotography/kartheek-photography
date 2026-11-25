@@ -68,6 +68,54 @@
   const titleCase = s => s.trim().replace(/\s+/g, ' ').replace(/(^|[\s-])(\p{L})/gu, (m, a, b) => a + b.toLocaleUpperCase());
   const getClient = () => ({ name: titleCase($('#name').value), phone: $('#phone').value.trim(), city: titleCase($('#city').value) });
   let savedQuote = null, leadEmailSent = false;
+  const qcount = $('#qcount'), qcountTime = $('#qcountTime');
+  const formCountdown = $('#formCountdown'), formCountdownTime = $('#formCountdownTime'), formCountdownLabel = $('#formCountdownLabel');
+  let countdownDeadline = 0, countdownInterval = null;
+  function stopCountdown() {
+    if (countdownInterval) clearInterval(countdownInterval);
+    countdownInterval = null; countdownDeadline = 0;
+    qcount.hidden = true; qcount.classList.remove('expired');
+    formCountdown.hidden = true; formCountdown.classList.remove('expired');
+  }
+  function startCountdown(deadline) {
+    stopCountdown();
+    countdownDeadline = Number(deadline) || (Date.now() + 10 * 60 * 1000);
+    qcount.hidden = false; qcount.classList.remove('expired');
+    formCountdown.hidden = false; formCountdown.classList.remove('expired');
+    const tick = () => {
+      const left = Math.max(0, countdownDeadline - Date.now());
+      const seconds = Math.ceil(left / 1000);
+      const display = `${two(Math.floor(seconds / 60))}:${two(seconds % 60)}`;
+      qcountTime.textContent = display; formCountdownTime.textContent = display;
+      if (!left) {
+        clearInterval(countdownInterval); countdownInterval = null;
+        qcount.classList.add('expired'); formCountdown.classList.add('expired');
+        const expiredText = 'Your latest quotation is saved. Our team may follow up shortly.';
+        qcount.querySelector('.qcount-label').textContent = expiredText;
+        formCountdownLabel.textContent = expiredText;
+      }
+    };
+    qcount.querySelector('.qcount-label').textContent = 'Quotation saved · inactivity reminder in';
+    formCountdownLabel.textContent = 'Quotation saved · inactivity reminder in';
+    tick();
+    countdownInterval = setInterval(tick, 1000);
+  }
+  async function uploadLatestPdf(job) {
+    const response = await fetch('/api/quote-pdf', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/pdf',
+        'X-Quote-ID': savedQuote.id,
+        'X-Quote-Token': savedQuote.token
+      },
+      body: new Blob([job.bytes], { type: 'application/pdf' })
+    });
+    const data = await response.json().catch(() => ({ success: false, code: 'bad_response' }));
+    if (!response.ok || !data.success) {
+      const err = new Error(data.message || 'Could not save the latest PDF');
+      err.status = response.status; err.code = data.code; throw err;
+    }
+  }
   async function persistQuote(job, action) {
     const payload = {
       action, id: savedQuote && savedQuote.id, token: savedQuote && savedQuote.token,
@@ -149,7 +197,7 @@
   cb.addEventListener('click', e => { if (e.target === cb) closeCompare(); });
   addEventListener('keydown', e => { if (e.key === 'Escape' && cb.classList.contains('open')) closeCompare(); });
 
-  /* ---------- Quotation popup (closes ONLY via Close or Edit) ---------- */
+  /* ---------- Quotation popup (closes only via Edit or successful Submit) ---------- */
   const qb = $('#qb'), qview = $('#qview'), qstatus = $('#qstatus');
   let renderToken = 0;
 
@@ -192,29 +240,50 @@
     if (toForm) { const t = chip(CFG.EVENTS[0].key); $('#enquire').scrollIntoView({ block: 'start' }); t.focus({ preventScroll: true }); }
     else sendBtn.focus({ preventScroll: true });
   }
-  $('#qclose').onclick = () => closeQuote(false);
   $('#qedit').onclick = () => closeQuote(true);
   $('#qdl').onclick = () => {
     if (!last) return;
     const a = document.createElement('a'); a.href = blobUrl; a.download = last.fileName;
     document.body.appendChild(a); a.click(); a.remove();             // popup stays open
   };
+
+  function resetQuotationForm() {
+    stopCountdown();
+    F.reset();
+    F.querySelectorAll('input[type=checkbox]').forEach(i => { i.checked = false; });
+    F.querySelectorAll('input[type=radio]').forEach(i => { i.disabled = false; });
+    $('#date').value = '';
+    if (window.QuoteDatePickerReset) window.QuoteDatePickerReset();
+    clearErrors(); sync();
+    savedQuote = null; leadEmailSent = false; last = null;
+    if (blobUrl) { URL.revokeObjectURL(blobUrl); blobUrl = null; }
+    qview.innerHTML = '';
+    qstatus.className = 'qstatus'; qstatus.textContent = '';
+    saveStatus.textContent = '';
+    sendBtn.disabled = false; sendBtn.textContent = 'Build Quotation';
+    $('#qsubmit').disabled = false; $('#qsubmit').textContent = 'Submit quotation';
+  }
+
   $('#qsubmit').onclick = async () => {
     if (!last || !savedQuote || building) return;
     const b = $('#qsubmit'); b.disabled = true; b.textContent = 'Submitting…';
     try {
       const client = getClient(), selection = getSelection(), quote = Pricing.priceQuote(selection);
-      const now = new Date(), safeName = client.name.replace(/[^\p{L}\p{N}]+/gu, '_').replace(/^_+|_+$/g, '') || 'Client';
+      const now = new Date(), safeName = client.name.replace(/[^\\p{L}\\p{N}]+/gu, '_').replace(/^_+|_+$/g, '') || 'Client';
       const fileName = CFG.FILE_NAME.replace('{name}', safeName).replace('{date}', `${two(now.getDate())}-${two(now.getMonth() + 1)}-${now.getFullYear()}`);
       last = { ...last, client, selection, quote, bytes: PDF.build({ client, quote, date: now }), fileName, createdLabel: PDF.fmtDate(now, '.') };
-      await sendEmail(last); // second and final owner notification, only on explicit submit
       const result = await persistQuote(last, 'submit');
+      await uploadLatestPdf(last);
+      await sendEmail(last, 'final');
+      stopCountdown();
       qstatus.className = 'qstatus ok'; qstatus.textContent = `Submitted · Revision ${result.revision}`;
       saveStatus.textContent = `Quotation submitted · Revision ${result.revision}`;
       b.textContent = 'Submitted'; b.disabled = true;
+      closeQuote(false);
+      resetQuotationForm();
     } catch (err) {
       console.error('Final quotation submission failed', err);
-      qstatus.className = 'qstatus'; qstatus.textContent = 'Submission failed. Please try again.';
+      qstatus.className = 'qstatus bad'; qstatus.textContent = 'Submission could not be completed. Please try again.';
       b.disabled = false; b.textContent = 'Submit quotation';
     }
   };
@@ -229,8 +298,9 @@
 
   /* ---------- studio notification email ---------- */
   const two = n => String(n).padStart(2, '0');
-  async function sendEmail(job) {
+  async function sendEmail(job, emailType = 'first') {
     const fd = new FormData();
+    fd.append('email_type', emailType);
     fd.append('name', job.client.name); fd.append('phone', job.client.phone); fd.append('city', job.client.city);
     if ($('#date').value) fd.append('date', $('#date').value);
     if ($('#comments').value.trim()) fd.append('comments', $('#comments').value.trim());
@@ -278,8 +348,10 @@
     job.selection = sel;
     try {
       const firstBuild = !savedQuote;
-      await persistQuote(job, firstBuild ? 'create' : 'save');
-      if (!leadEmailSent) { await sendEmail(job); leadEmailSent = true; } // retry first email if delivery previously failed
+      const saved = await persistQuote(job, firstBuild ? 'create' : 'save');
+      await uploadLatestPdf(job);
+      if (!leadEmailSent) { await sendEmail(job, 'first'); leadEmailSent = true; } // retry first email if delivery previously failed
+      job.inactivityDeadline = saved.inactivityDeadline;
     } catch (err) {
       console.error('Quotation save/email failed', err.status, err.code, err);
       errBox.textContent = (err.code === 'd1_not_configured'
@@ -294,6 +366,7 @@
     blobUrl = URL.createObjectURL(new Blob([job.bytes], { type: 'application/pdf' }));
     qstatus.className = 'qstatus ok'; qstatus.textContent = savedQuote.revision === 1 ? CFG.COPY.sentOk : `Saved · Revision ${savedQuote.revision}`;
     saveStatus.textContent = `Quotation saved · Revision ${savedQuote.revision}`;
+    startCountdown(job.inactivityDeadline);
     openQuote();
     renderViewer(job.bytes, blobUrl);
     building = false; sendBtn.disabled = false; sendBtn.textContent = 'Build Quotation';

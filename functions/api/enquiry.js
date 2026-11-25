@@ -28,7 +28,7 @@ export async function onRequestPost({ request, env }) {
     const details = {};
 
     for (const [key, value] of formData.entries()) {
-      if (key === "bot-field" || key === "quote" || key === "quotation" || value === "") continue;
+      if (["bot-field", "quote", "quotation", "email_type", "quote_id"].includes(key) || value === "") continue;
       if (typeof value !== "string") continue;
 
       if (details[key]) {
@@ -139,6 +139,20 @@ export async function onRequestPost({ request, env }) {
       .join("");
 
     const safeName = escapeHtml(details.name);
+    const emailType = String(formData.get("email_type") || "first");
+    const isFinal = emailType === "final";
+    const quoteId = String(formData.get("quote_id") || "").trim();
+    if (quoteId && env.DB) {
+      const emailState = await env.DB.prepare(
+        "SELECT first_email_sent_at, final_email_sent_at FROM quotes WHERE id=?"
+      ).bind(quoteId).first();
+      if (emailType === "final" && emailState?.final_email_sent_at) {
+        return response(200, { success: true, alreadySent: true });
+      }
+      if (emailType !== "final" && emailState?.first_email_sent_at) {
+        return response(200, { success: true, alreadySent: true });
+      }
+    }
 
     // Indian digit grouping, e.g. 255000 -> 2,55,000
     const inr = (n) => {
@@ -173,6 +187,10 @@ export async function onRequestPost({ request, env }) {
           </tr>`
       : "";
 
+    const emailHeading = isFinal ? "Quotation Submitted" : "New Quotation";
+    const emailIntro = isFinal
+      ? "The customer has explicitly submitted their latest quotation. The final PDF is attached."
+      : "just built a quotation on your website. Their details and the quotation are below, and the PDF is attached.";
     const emailHtml = `
 <!DOCTYPE html>
 <html>
@@ -201,7 +219,7 @@ export async function onRequestPost({ request, env }) {
               </div>
               <div style="width:40px;height:1px;background:#c9a46a;margin:16px auto;"></div>
               <div style="font-size:26px;line-height:1.3;color:#ffffff;">
-                New Quotation
+                ${emailHeading}
               </div>
             </td>
           </tr>
@@ -210,8 +228,7 @@ export async function onRequestPost({ request, env }) {
           <tr>
             <td style="padding:32px 36px 8px;font-family:Arial,sans-serif;">
               <p style="margin:0;font-size:15px;line-height:1.6;color:#5a524a;">
-                <strong style="color:#2b2622;">${safeName}</strong>
-                just built a quotation on your website. Their details and the quotation are below, and the PDF is attached.
+                ${isFinal ? `<strong style="color:#2b2622;">${safeName}</strong> ${emailIntro}` : `<strong style="color:#2b2622;">${safeName}</strong> ${emailIntro}`}
               </p>
             </td>
           </tr>
@@ -259,8 +276,9 @@ export async function onRequestPost({ request, env }) {
     const emailPayload = {
       from: "Kartheek Photography <enquiries@kartheekphotography.com>",
       to: ["kartheekphotography.kp@gmail.com"],
-      subject: `New Quotation - ${details.name.replace(/[\r\n]+/g, " ")} - \u20B9${inr(quote.total)}`,
+      subject: `${isFinal ? "Final Quotation Submitted" : "New Quotation"} - ${details.name.replace(/[\r\n]+/g, " ")} - ₹${inr(quote.total)}`,
       html: emailHtml,
+      headers: quoteId ? { "X-Quote-ID": quoteId } : undefined,
       attachments: [{ filename: fileName, content: pdfBase64 }],
     };
 
@@ -291,9 +309,16 @@ export async function onRequestPost({ request, env }) {
       });
     }
 
+    if (quoteId && env.DB) {
+      const sentAt = new Date().toISOString().replace("T", " ").replace(/\\.\\d{3}Z$/, "");
+      const column = isFinal ? "final_email_sent_at" : "first_email_sent_at";
+      await env.DB.prepare(`UPDATE quotes SET ${column}=? WHERE id=?`).bind(sentAt, quoteId).run();
+    }
+
     return response(200, {
       success: true,
       message: "Enquiry sent successfully.",
+      emailId: resendResult.id || null,
     });
 
   } catch (error) {

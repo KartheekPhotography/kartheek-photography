@@ -1372,9 +1372,20 @@ input.bad { outline-offset:0 }
 .qbar { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; padding:14px 18px; border-top:1px solid var(--line) }
 .qbtns { display:flex; gap:10px; margin-left:auto }
 .qstatus { font-size:14px; color:var(--mut); flex:1 1 220px; min-width:0 }
-.qstatus.ok { color:#9ccf9c }
+.qstatus.ok { color:var(--mut) }
 .qstatus.bad { color:var(--amber) }
 .qstatus .linkbtn { margin:0 }
+.qmeta { display:flex; flex:1 1 260px; flex-direction:column; gap:7px; min-width:0 }
+.qcount { display:flex; align-items:center; gap:12px; color:var(--mut); font-size:12px; letter-spacing:.02em }
+.qcount[hidden] { display:none }
+.qcount-label { color:var(--mut) }
+.form-countdown { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:8px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; color:var(--mut); font-size:12px; letter-spacing:.02em; background:color-mix(in srgb, var(--bg2) 78%, transparent) }
+.form-countdown[hidden] { display:none }
+.form-countdown time { color:var(--amber); font:500 14px var(--bd); font-variant-numeric:tabular-nums; letter-spacing:.08em }
+.form-countdown.expired time { color:var(--mut) }
+.qcount-time { color:var(--amber); font:500 15px var(--bd); font-variant-numeric:tabular-nums; letter-spacing:.08em; padding:4px 9px; border:1px solid var(--line); border-radius:999px; background:color-mix(in srgb, var(--bg) 72%, transparent) }
+.qcount.expired .qcount-time { color:var(--mut); border-color:var(--line) }
+
 .cbody { padding:18px 20px 22px; overflow:auto }
 .ctab { width:100%; border-collapse:collapse; font-size:15px }
 .ctab th, .ctab td { text-align:left; padding:11px 10px; border-bottom:1px dashed var(--line); vertical-align:top }
