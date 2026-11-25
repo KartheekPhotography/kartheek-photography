@@ -208,3 +208,6 @@ footer.sf > * { position:relative }
   #heroCar .car { transform:none; transition:none }
 }
 #hero::before { will-change:opacity }
+
+html.off-aperture .fx-bg .aperture { display:none }
+html.off-beam #hero::before { display:none }
