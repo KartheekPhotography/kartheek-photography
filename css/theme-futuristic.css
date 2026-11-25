@@ -228,33 +228,39 @@ html.off-blur *, html.off-blur *::before, html.off-blur *::after { -webkit-backd
     rgba(224,169,109,.09) 50%, transparent 85%);
 }
 
-/* ---------- mobile aperture stability: one SVG, same two rotations ----------
-   The previous mobile treatment split the aperture into three separately filtered,
-   masked SVG surfaces. On high-density Chrome displays those large filtered surfaces
-   could repeatedly repaint. Keep the same artwork in one SVG and animate only the
-   two inner geometry groups; the glow/fade stay on the single parent surface. */
-.fx-bg svg.ap2 { display:none }
+/* ---------- single aperture on every screen ----------
+   Keep one centered SVG. On touch phones, remove scroll-linked rotation and
+   expensive outer effects to prevent Chrome repaint flicker while scrolling. */
+.fx-bg .ap2 { display:none }
 @media (max-width:700px) {
-  .fx-bg svg.aperture { display:none }
-  .fx-bg svg.ap2 {
+  .fx-bg svg.aperture {
     display:block;
-    width:min(1080px,135vmin);
-    height:auto;
-    aspect-ratio:1;
-    filter:drop-shadow(0 0 26px rgba(224,169,109,.28)) blur(.6px);
-    -webkit-mask-image:radial-gradient(circle,#000 55%,transparent 74%);
-    mask-image:radial-gradient(circle,#000 55%,transparent 74%);
-    rotate:none;
-    transform:translateZ(0);
-    backface-visibility:hidden;
+    filter:none;
+    -webkit-mask-image:none;
+    mask-image:none;
+    rotate:0deg;
   }
-  .fx-bg svg.ap2 .spin,
-  .fx-bg svg.ap2 .spin2 {
-    transform-box:fill-box;
-    transform-origin:center;
-    backface-visibility:hidden;
-    will-change:transform;
+  .fx-bg .ap2 { display:none }
+}
+
+
+/* ---------- mobile aperture compositing stability ----------
+   Keep the original two rotations and all aperture artwork. Give the SVG
+   and its animated groups stable transform layers on touch devices so
+   Chrome does not repeatedly repaint the vector paths at high DPR.
+   No changes to the hero beam, background, size, opacity or timing. */
+@media (hover: none) and (max-width: 700px) {
+  .fx-bg svg.aperture {
+    transform: translate3d(0, 0, 0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
-  .fx-bg svg.ap2 .spin { animation:spin 90s linear infinite }
-  .fx-bg svg.ap2 .spin2 { animation:spin 140s linear infinite reverse }
+  .fx-bg svg.aperture .spin,
+  .fx-bg svg.aperture .spin2 {
+    transform-box: fill-box;
+    transform-origin: center;
+    will-change: transform;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
 }
