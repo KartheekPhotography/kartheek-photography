@@ -563,8 +563,20 @@ nav.scrolled {
         padding:10px 13px;
     }
     .q label {
-    font:400 17px var(--hd);
-}
+    font:400 15px var(--hd) !important; 
+    }
+    .note{
+        font-size:13px !important
+    }
+    .tbox h3{
+        font:400 22px var(--hd) !important
+    }
+    .steps b{
+        font:500 15px var(--bd) !important
+    }
+    .steps span{
+        font-size:12px !important
+    }
 }
 @media (prefers-reduced-motion:reduce) {
     * {
@@ -974,6 +986,9 @@ input:focus-visible,select:focus-visible,textarea:focus-visible {
     }
     .opts {
         gap:7px
+    }
+    input, .dpbtn, textarea{
+        padding:8px 12px !important;
     }
 }
 @media (max-width:700px) {
