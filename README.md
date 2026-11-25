@@ -116,3 +116,16 @@ Deploy this small scheduled Worker separately using `wrangler.cleanup.toml.examp
 6. Ensure the Pages project still has its own `RESEND_API_KEY` secret for the first and explicit-submit emails, then redeploy Pages.
 
 The scheduled Worker needs D1 binding `DB`, R2 binding `QUOTE_PDFS`, and the `RESEND_API_KEY` secret. The Pages Functions need D1 binding `DB`, R2 binding `QUOTE_PDFS`, and `RESEND_API_KEY`.
+
+
+## Email automation deployment (Cloudflare)
+
+This project uses a separate scheduled Worker (`cleanup-worker.js`) in addition to the Pages Functions.
+
+1. Apply migrations `0001`, `0002`, and the new `0003_atomic_email_notifications.sql` to the production D1 database before deploying the updated Pages Functions or Worker.
+2. Deploy Pages from the project root as usual. The Pages project must retain `DB` (D1), `QUOTE_PDFS` (R2), and the `RESEND_API_KEY` secret.
+3. Deploy the scheduled Worker from this project root using `wrangler.cleanup.toml`. It defines the `DB` and `QUOTE_PDFS` bindings and both Cron schedules. Add the `RESEND_API_KEY` secret to the Worker separately; Pages secrets are not automatically shared with standalone Workers.
+4. The one-minute Cron checks generated quotations after ten minutes of inactivity. The daily Cron removes expired quotations and their stored PDFs.
+5. Test both mutually exclusive second-email paths with separate test quotations: explicit Submit sends the final PDF email; leaving a quote idle sends the inactivity PDF email. Verify the attached PDF is the latest revision and check Resend delivery logs.
+
+The browser countdown closes the quotation preview and clears the local form at ten minutes. It does not delete the saved quotation; the scheduled Worker still processes it.

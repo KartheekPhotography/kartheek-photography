@@ -9,6 +9,8 @@ const api = read("functions/api/quote.js");
 const pdfApi = read("functions/api/quote-pdf.js");
 const worker = read("cleanup-worker.js");
 const migration = read("migrations/0002_inactivity_notifications.sql");
+const atomicMigration = read("migrations/0003_atomic_email_notifications.sql");
+const enquiry = read("functions/api/enquiry.js");
 let pass = 0;
 function test(name, fn) { fn(); pass++; console.log("PASS", name); }
 
@@ -26,10 +28,35 @@ test("10-minute countdown is started from server response and does not reload pa
   assert(!/location\.reload|window\.location\.reload/.test(form));
   assert(/formCountdownTime/.test(form));
 });
+test("timer expiry closes the quotation popup and clears the form", () => {
+  const i = form.indexOf("if (!left) {");
+  const block = form.slice(i, form.indexOf("      }", i) + 7);
+  assert(/closeQuote\(false\)/.test(block));
+  assert(/resetQuotationForm\(\)/.test(block));
+});
+test("first and second notification sends use atomic database claims", () => {
+  assert(/first_email_claimed_at/.test(enquiry));
+  assert(/second_email_claimed_at/.test(enquiry));
+  assert(/second_email_sent_at/.test(enquiry));
+  assert(/email_in_progress/.test(enquiry));
+  assert(/second_email_claimed_at/.test(worker));
+  assert(/second_email_sent_at/.test(worker));
+  assert(/first_email_claimed_at/.test(atomicMigration));
+  assert(/second_email_claimed_at/.test(atomicMigration));
+});
 test("quotation popup has no manual X close control", () => {
   assert(!/id="qclose"/.test(html));
   assert(!/\$\('#qclose'\)/.test(form));
   assert(/id="qedit"/.test(html) && /id="qsubmit"/.test(html));
+});
+test("Download starts immediately, submits latest quote, emails final PDF, closes and resets", () => {
+  const i = form.indexOf("$('#qdl').onclick = async");
+  const block = form.slice(i, form.indexOf("function resetQuotationForm()", i));
+  assert(i >= 0);
+  assert(block.indexOf("a.click()") < block.indexOf("await persistQuote(finalJob, 'submit')"));
+  assert(block.indexOf("await persistQuote(finalJob, 'submit')") < block.indexOf("await uploadLatestPdf(finalJob)"));
+  assert(block.indexOf("await uploadLatestPdf(finalJob)") < block.indexOf("await sendEmail(finalJob, 'final')"));
+  assert(/closeQuote\(false\)/.test(block) && /resetQuotationForm\(\)/.test(block));
 });
 test("successful Submit saves latest state, uploads PDF, emails, closes and resets", () => {
   const i = form.indexOf("$('#qsubmit').onclick");

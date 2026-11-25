@@ -15,7 +15,7 @@ async function sendInactivityEmail(row, env) {
   const object = await env.QUOTE_PDFS.get(`quotes/${row.id}.pdf`);
   if (!object) throw new Error(`Latest PDF is missing for quote ${row.id}`);
   const pdfBytes = new Uint8Array(await object.arrayBuffer());
-  const filename = `Quotation-${String(row.customer_name || "Client").replace(/[^\\p{L}\\p{N}_-]+/gu, "_")}.pdf`;
+  const filename = `Quotation-${String(row.customer_name || "Client").replace(/[^\p{L}\p{N}_-]+/gu, "_")}.pdf`;
   const rows = (quote.lines || []).slice(0, 40).map(line => `
     <tr><td style="padding:10px 0;border-bottom:1px solid #eee6da;color:#2b2622">${escapeHtml(line.name)}</td>
     <td style="padding:10px 0;border-bottom:1px solid #eee6da;text-align:right;color:#2b2622;white-space:nowrap">₹${inr(line.amount)}</td></tr>`).join("");
@@ -53,39 +53,45 @@ async function sendInactivityEmail(row, env) {
 async function processInactivity(env) {
   if (!env.DB || !env.QUOTE_PDFS) throw new Error("D1 DB and R2 QUOTE_PDFS bindings are required");
   const candidates = await env.DB.prepare(`SELECT id FROM quotes
-    WHERE status='generated' AND inactivity_email_sent_at IS NULL
+    WHERE status='generated' AND second_email_sent_at IS NULL
       AND last_activity_at IS NOT NULL
       AND first_email_sent_at IS NOT NULL
       AND last_activity_at <= datetime('now', '-10 minutes')
-      AND (inactivity_email_claimed_at IS NULL OR inactivity_email_claimed_at <= datetime('now', '-5 minutes'))
+      AND (second_email_claimed_at IS NULL OR second_email_claimed_at <= datetime('now', '-5 minutes'))
     ORDER BY last_activity_at ASC LIMIT 50`).all();
 
   for (const candidate of (candidates.results || [])) {
     const claim = stamp();
-    const claimed = await env.DB.prepare(`UPDATE quotes SET inactivity_email_claimed_at=?
-      WHERE id=? AND status='generated' AND inactivity_email_sent_at IS NULL
+    const claimed = await env.DB.prepare(`UPDATE quotes SET second_email_claimed_at=?
+      WHERE id=? AND status='generated' AND second_email_sent_at IS NULL
         AND last_activity_at <= datetime('now', '-10 minutes')
-        AND (inactivity_email_claimed_at IS NULL OR inactivity_email_claimed_at <= datetime('now', '-5 minutes'))`)
+        AND (second_email_claimed_at IS NULL OR second_email_claimed_at <= datetime('now', '-5 minutes'))`)
       .bind(claim, candidate.id).run();
     if (!(claimed.meta?.changes > 0)) continue;
 
     try {
       const row = await env.DB.prepare(`SELECT id, customer_name, customer_phone, event_location, event_date,
-          quote_json, revision, last_activity_at, first_email_sent_at, inactivity_email_claimed_at, inactivity_email_sent_at, status
+          quote_json, revision, last_activity_at, first_email_sent_at, second_email_claimed_at, second_email_sent_at, status
         FROM quotes WHERE id=?`).bind(candidate.id).first();
       // Re-check after claiming. A successful rebuild resets the claim and the 10-minute clock.
-      if (!row || row.status !== "generated" || row.inactivity_email_claimed_at !== claim ||
-          row.inactivity_email_sent_at || !row.first_email_sent_at || !row.last_activity_at ||
-          new Date(row.last_activity_at.replace(" ", "T") + "Z").getTime() > Date.now() - 10 * 60 * 1000) continue;
+      if (!row || row.status !== "generated" || row.second_email_claimed_at !== claim ||
+          row.second_email_sent_at || !row.first_email_sent_at || !row.last_activity_at ||
+          new Date(row.last_activity_at.replace(" ", "T") + "Z").getTime() > Date.now() - 10 * 60 * 1000) {
+        await env.DB.prepare("UPDATE quotes SET second_email_claimed_at=NULL WHERE id=? AND second_email_claimed_at=?")
+          .bind(candidate.id, claim).run();
+        continue;
+      }
 
       await sendInactivityEmail(row, env);
-      await env.DB.prepare(`UPDATE quotes SET inactivity_email_sent_at=?, inactivity_email_claimed_at=NULL
-        WHERE id=? AND inactivity_email_claimed_at=? AND status='generated' AND inactivity_email_sent_at IS NULL`)
-        .bind(stamp(), row.id, claim).run();
+      const sentAt = stamp();
+      await env.DB.prepare(`UPDATE quotes SET inactivity_email_sent_at=?, second_email_sent_at=?,
+          second_email_claimed_at=NULL, inactivity_email_claimed_at=NULL
+        WHERE id=? AND second_email_claimed_at=? AND status='generated' AND second_email_sent_at IS NULL`)
+        .bind(sentAt, sentAt, row.id, claim).run();
       console.log(`10-minute inactivity email sent for quote ${row.id}, revision ${row.revision}`);
     } catch (error) {
       console.error(`Inactivity email failed for quote ${candidate.id}:`, error);
-      await env.DB.prepare(`UPDATE quotes SET inactivity_email_claimed_at=NULL WHERE id=? AND inactivity_email_claimed_at=?`)
+      await env.DB.prepare(`UPDATE quotes SET second_email_claimed_at=NULL, inactivity_email_claimed_at=NULL WHERE id=? AND second_email_claimed_at=?`)
         .bind(candidate.id, claim).run();
     }
   }

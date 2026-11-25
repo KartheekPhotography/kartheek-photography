@@ -1,4 +1,5 @@
 export async function onRequestPost({ request, env }) {
+  let activeClaim = null, activeClaimColumn = null, activeQuoteId = null;
   const headers = {
     "Content-Type": "application/json",
   };
@@ -140,18 +141,31 @@ export async function onRequestPost({ request, env }) {
 
     const safeName = escapeHtml(details.name);
     const emailType = String(formData.get("email_type") || "first");
+    if (!["first", "final"].includes(emailType)) {
+      return response(400, { success: false, code: "invalid_email_type" });
+    }
     const isFinal = emailType === "final";
     const quoteId = String(formData.get("quote_id") || "").trim();
     if (quoteId && env.DB) {
+      const sentColumn = isFinal ? "second_email_sent_at" : "first_email_sent_at";
+      const claimColumn = isFinal ? "second_email_claimed_at" : "first_email_claimed_at";
       const emailState = await env.DB.prepare(
-        "SELECT first_email_sent_at, final_email_sent_at FROM quotes WHERE id=?"
+        `SELECT ${sentColumn} AS sent_at, status FROM quotes WHERE id=?`
       ).bind(quoteId).first();
-      if (emailType === "final" && emailState?.final_email_sent_at) {
-        return response(200, { success: true, alreadySent: true });
+      if (!emailState) return response(404, { success: false, code: "quote_not_found" });
+      if (emailState.sent_at) return response(200, { success: true, alreadySent: true });
+      if (isFinal && emailState.status !== "submitted") {
+        return response(409, { success: false, code: "quote_not_submitted" });
       }
-      if (emailType !== "final" && emailState?.first_email_sent_at) {
-        return response(200, { success: true, alreadySent: true });
+      const claim = new Date().toISOString().replace("T", " ").replace(/\.\d{3}Z$/, "");
+      const claimed = await env.DB.prepare(
+        `UPDATE quotes SET ${claimColumn}=? WHERE id=? AND ${sentColumn} IS NULL
+          AND (${claimColumn} IS NULL OR ${claimColumn} <= datetime('now', '-5 minutes'))${isFinal ? " AND status='submitted'" : ""}`
+      ).bind(claim, quoteId).run();
+      if (!(claimed.meta?.changes > 0)) {
+        return response(409, { success: false, code: "email_in_progress", message: "This notification is already being processed. Please retry shortly." });
       }
+      activeClaim = claim; activeClaimColumn = claimColumn; activeQuoteId = quoteId;
     }
 
     // Indian digit grouping, e.g. 255000 -> 2,55,000
@@ -301,7 +315,11 @@ export async function onRequestPost({ request, env }) {
 
     if (!resendResponse.ok) {
       console.error("Resend API error:", resendResult);
-
+      if (activeClaim && activeClaimColumn && activeQuoteId && env.DB) {
+        await env.DB.prepare(`UPDATE quotes SET ${activeClaimColumn}=NULL WHERE id=? AND ${activeClaimColumn}=?`)
+          .bind(activeQuoteId, activeClaim).run();
+        activeClaim = null;
+      }
       return response(502, {
         success: false,
         code: "resend_rejected",
@@ -309,10 +327,18 @@ export async function onRequestPost({ request, env }) {
       });
     }
 
-    if (quoteId && env.DB) {
-      const sentAt = new Date().toISOString().replace("T", " ").replace(/\\.\\d{3}Z$/, "");
-      const column = isFinal ? "final_email_sent_at" : "first_email_sent_at";
-      await env.DB.prepare(`UPDATE quotes SET ${column}=? WHERE id=?`).bind(sentAt, quoteId).run();
+    if (quoteId && env.DB && activeClaim) {
+      const sentAt = new Date().toISOString().replace("T", " ").replace(/\.\d{3}Z$/, "");
+      if (isFinal) {
+        await env.DB.prepare(`UPDATE quotes SET second_email_sent_at=?, final_email_sent_at=?, second_email_claimed_at=NULL
+          WHERE id=? AND second_email_claimed_at=? AND status='submitted' AND second_email_sent_at IS NULL`)
+          .bind(sentAt, sentAt, quoteId, activeClaim).run();
+      } else {
+        await env.DB.prepare(`UPDATE quotes SET first_email_sent_at=?, first_email_claimed_at=NULL
+          WHERE id=? AND first_email_claimed_at=? AND first_email_sent_at IS NULL`)
+          .bind(sentAt, quoteId, activeClaim).run();
+      }
+      activeClaim = null;
     }
 
     return response(200, {
@@ -323,6 +349,14 @@ export async function onRequestPost({ request, env }) {
 
   } catch (error) {
     console.error("Enquiry function error:", error);
+    if (activeClaim && activeClaimColumn && activeQuoteId && env.DB) {
+      try {
+        await env.DB.prepare(`UPDATE quotes SET ${activeClaimColumn}=NULL WHERE id=? AND ${activeClaimColumn}=?`)
+          .bind(activeQuoteId, activeClaim).run();
+      } catch (releaseError) {
+        console.error("Could not release email claim:", releaseError);
+      }
+    }
 
     return response(500, {
       success: false,

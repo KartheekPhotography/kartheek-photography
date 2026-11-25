@@ -89,10 +89,11 @@
       qcountTime.textContent = display; formCountdownTime.textContent = display;
       if (!left) {
         clearInterval(countdownInterval); countdownInterval = null;
-        qcount.classList.add('expired'); formCountdown.classList.add('expired');
-        const expiredText = 'Your latest quotation is saved. Our team may follow up shortly.';
-        qcount.querySelector('.qcount-label').textContent = expiredText;
-        formCountdownLabel.textContent = expiredText;
+        // The server-side scheduled Worker will still send the inactivity email.
+        // Close the preview and clear the local form when the customer's 10-minute
+        // window ends; do not cancel or delete the saved quotation in D1/R2.
+        closeQuote(false);
+        resetQuotationForm();
       }
     };
     qcount.querySelector('.qcount-label').textContent = 'Quotation saved · inactivity reminder in';
@@ -241,10 +242,37 @@
     else sendBtn.focus({ preventScroll: true });
   }
   $('#qedit').onclick = () => closeQuote(true);
-  $('#qdl').onclick = () => {
-    if (!last) return;
-    const a = document.createElement('a'); a.href = blobUrl; a.download = last.fileName;
-    document.body.appendChild(a); a.click(); a.remove();             // popup stays open
+  $('#qdl').onclick = async () => {
+    if (!last || !savedQuote || building) return;
+    const b = $('#qdl');
+    const downloadUrl = blobUrl;
+    const downloadName = last.fileName;
+    const finalJob = { ...last, bytes: last.bytes.slice() };
+
+    // Start the browser download directly inside the user's click gesture,
+    // before awaiting network requests (some browsers block delayed downloads).
+    const a = document.createElement('a');
+    a.href = downloadUrl; a.download = downloadName;
+    document.body.appendChild(a); a.click(); a.remove();
+
+    b.disabled = true;
+    const originalLabel = b.textContent;
+    b.textContent = 'Sending final quotation…';
+    try {
+      // A download click is also an explicit final submission: mark the quote
+      // submitted, persist the latest revision/PDF, and send the final email.
+      await persistQuote(finalJob, 'submit');
+      await uploadLatestPdf(finalJob);
+      await sendEmail(finalJob, 'final');
+      stopCountdown();
+      closeQuote(false);
+      resetQuotationForm();
+    } catch (err) {
+      console.error('Final quotation download/email failed', err);
+      qstatus.className = 'qstatus bad';
+      qstatus.textContent = 'Your download has started, but we could not send the final quotation notification. Please try again.';
+      b.disabled = false; b.textContent = originalLabel;
+    }
   };
 
   function resetQuotationForm() {

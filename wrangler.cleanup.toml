@@ -1,0 +1,15 @@
+name = "kartheek-quotation-jobs"
+main = "cleanup-worker.js"
+compatibility_date = "2026-11-25"
+
+[triggers]
+crons = ["*/1 * * * *", "17 0 * * *"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "kartheek-quotes"
+database_id = "9d7fecfe-2ecb-4a9c-bfc0-ca5857bebec7"
+
+[[r2_buckets]]
+binding = "QUOTE_PDFS"
+bucket_name = "kartheek-quote-pdfs"

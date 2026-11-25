@@ -77,7 +77,8 @@ export async function onRequestPost({ request, env }) {
       await env.DB.prepare(`UPDATE quotes SET customer_name=?, customer_phone=?, event_location=?, event_date=?, comments=?,
           selection_json=?, quote_json=?, revision=?, status=?, updated_at=?, last_activity_at=?,
           expires_at=datetime('now', '+90 days'),
-          inactivity_email_claimed_at=CASE WHEN inactivity_email_sent_at IS NULL THEN NULL ELSE inactivity_email_claimed_at END
+          inactivity_email_claimed_at=CASE WHEN inactivity_email_sent_at IS NULL THEN NULL ELSE inactivity_email_claimed_at END,
+          second_email_claimed_at=CASE WHEN second_email_sent_at IS NULL THEN NULL ELSE second_email_claimed_at END
         WHERE id=?`)
         .bind(name, phone, city, eventDate, comments, selectionJson, quoteJson, revision, status, now, now, id).run();
       await env.DB.prepare(`INSERT INTO quote_revisions (quote_id, revision, selection_json, quote_json, created_at) VALUES (?, ?, ?, ?, ?)`)
@@ -86,7 +87,8 @@ export async function onRequestPost({ request, env }) {
       // A successful Build resets inactivity even when the selection did not change.
       await env.DB.prepare(`UPDATE quotes SET status=?, updated_at=?, last_activity_at=?,
           expires_at=datetime('now', '+90 days'),
-          inactivity_email_claimed_at=CASE WHEN inactivity_email_sent_at IS NULL THEN NULL ELSE inactivity_email_claimed_at END
+          inactivity_email_claimed_at=CASE WHEN inactivity_email_sent_at IS NULL THEN NULL ELSE inactivity_email_claimed_at END,
+          second_email_claimed_at=CASE WHEN second_email_sent_at IS NULL THEN NULL ELSE second_email_claimed_at END
         WHERE id=?`)
         .bind(status, now, now, id).run();
     }
