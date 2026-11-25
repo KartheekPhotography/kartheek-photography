@@ -242,17 +242,41 @@
     else sendBtn.focus({ preventScroll: true });
   }
   $('#qedit').onclick = () => closeQuote(true);
-  $('#qdl').onclick = () => {
+  $('#qdl').onclick = async () => {
     if (!last || !blobUrl || building) return;
 
-    // Download is only a local PDF action. It must not submit the quotation,
-    // send the final email, disable itself, or clear the customer's quote.
-    const a = document.createElement('a');
-    a.href = blobUrl;
-    a.download = last.fileName;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+    const b = $('#qdl');
+    const originalLabel = b.textContent;
+    b.disabled = true;
+    b.textContent = 'Preparing…';
+
+    try {
+      // Download also finalizes the quotation: save the latest revision,
+      // send the final notification, then download and close/reset the form.
+      await persistQuote(last, 'submit');
+      await uploadLatestPdf(last);
+      await sendEmail(last, 'final');
+      stopCountdown();
+
+      // Use a separate URL so resetQuotationForm can safely revoke the preview URL.
+      const downloadUrl = URL.createObjectURL(new Blob([last.bytes], { type: 'application/pdf' }));
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = last.fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(downloadUrl), 60000);
+
+      closeQuote(false);
+      resetQuotationForm();
+    } catch (err) {
+      console.error('Download/final quotation failed', err);
+      qstatus.className = 'qstatus bad';
+      qstatus.textContent = 'The quotation could not be finalized. Please try again.';
+      b.disabled = false;
+      b.textContent = originalLabel || 'Download';
+    }
   };
 
   function resetQuotationForm() {
