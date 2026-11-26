@@ -337,50 +337,37 @@ html.off-blur *, html.off-blur *::before, html.off-blur *::after { -webkit-backd
 }
 
 
-/* ---------- tablet aperture stability override ----------
-   Tablet-only equivalent of the lightweight mobile treatment:
-   - keep the original SVG (with live blur/drop-shadow/masks) out of the tablet render tree
-   - use the pre-rendered aperture artwork instead
-   - remove any remaining CSS filter/mask effects from the animated layers
-   - throttle the raster-layer rotation redraws to ~16 frames/sec while preserving
-     the original 90s and 140s rotation periods and directions
-   This block is intentionally separate from the existing mobile rules. */
+/* TABLET FOLLOW-UP: static lightweight aperture + portrait spacing.
+   Isolated to touch tablets; existing mobile and desktop rules are unchanged.
+   All three pre-rendered artwork layers remain visible, but no continuous
+   transform animation/filter is run on the tablet GPU. */
 @media (min-width:701px) and (max-width:1366px) and (pointer:coarse) {
-  .fx-bg svg.aperture {
-    display:none !important;
-    filter:none !important;
-    -webkit-filter:none !important;
-    -webkit-mask-image:none !important;
-    mask-image:none !important;
-  }
-
+  .fx-bg svg.aperture { display:none !important; }
   .fx-bg .ap2 {
     display:block !important;
     filter:none !important;
     -webkit-filter:none !important;
-    -webkit-mask-image:none !important;
-    mask-image:none !important;
-    -webkit-transform:translateZ(0);
-    transform:translateZ(0);
+    rotate:none !important;
+    transform:none !important;
   }
-
-  .fx-bg .ap2 .ly {
+  .fx-bg .ap2 .ly,
+  .fx-bg .ap2 .ly-a,
+  .fx-bg .ap2 .ly-b {
+    animation:none !important;
     filter:none !important;
     -webkit-filter:none !important;
-    -webkit-mask-image:none !important;
-    mask-image:none !important;
-    will-change:transform;
-    backface-visibility:hidden;
-    -webkit-backface-visibility:hidden;
+    transform:none !important;
+    will-change:auto !important;
   }
+}
 
-  .fx-bg .ap2 .ly-a {
-    animation:spin 90s steps(1440,end) infinite !important;
-    transform-origin:50% 50%;
-  }
-
-  .fx-bg .ap2 .ly-b {
-    animation:spin 140s steps(2240,end) infinite reverse !important;
-    transform-origin:50% 50%;
-  }
+/* Xiaomi Pad 6 portrait: tighten vertical rhythm only.
+   Landscape tablet layout remains as previously configured. */
+@media (min-width:701px) and (max-width:900px) and (pointer:coarse) and (orientation:portrait) {
+  #work, #films { padding-top:clamp(26px,4vh,42px) !important; }
+  #work > .wrap, #films > .wrap { padding-top:0 !important; }
+  #work h2, #films h2 { margin-top:0 !important; margin-bottom:12px !important; }
+  #work .subs { margin-top:14px !important; }
+  #films .films { margin-top:14px !important; gap:14px !important; }
+  #work .subs, #films .films { row-gap:14px !important; }
 }
