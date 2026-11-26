@@ -337,30 +337,6 @@ html.off-blur *, html.off-blur *::before, html.off-blur *::after { -webkit-backd
 }
 
 
-/* TABLET FOLLOW-UP: static lightweight aperture + portrait spacing.
-   Isolated to touch tablets; existing mobile and desktop rules are unchanged.
-   All three pre-rendered artwork layers remain visible, but no continuous
-   transform animation/filter is run on the tablet GPU. */
-@media (min-width:701px) and (max-width:1366px) and (pointer:coarse) {
-  .fx-bg svg.aperture { display:none !important; }
-  .fx-bg .ap2 {
-    display:block !important;
-    filter:none !important;
-    -webkit-filter:none !important;
-    rotate:none !important;
-    transform:none !important;
-  }
-  .fx-bg .ap2 .ly,
-  .fx-bg .ap2 .ly-a,
-  .fx-bg .ap2 .ly-b {
-    animation:none !important;
-    filter:none !important;
-    -webkit-filter:none !important;
-    transform:none !important;
-    will-change:auto !important;
-  }
-}
-
 /* Xiaomi Pad 6 portrait: tighten vertical rhythm only.
    Landscape tablet layout remains as previously configured. */
 @media (min-width:701px) and (max-width:900px) and (pointer:coarse) and (orientation:portrait) {
@@ -373,18 +349,19 @@ html.off-blur *, html.off-blur *::before, html.off-blur *::after { -webkit-backd
 }
 
 
-/* TABLET APERTURE: restore the same live raster-layer rotations as mobile.
-   The source PNGs contain the original visual treatment; this avoids the
-   expensive SVG blur/drop-shadow/mask pipeline while preserving the artwork.
-   The outer scroll-linked rotate is disabled, while both independent rotations
-   continue at their original 90s and 140s durations. */
-@media (min-width:701px) and (max-width:1366px) and (pointer:coarse) {
-  .fx-bg svg.aperture {
-    display:none !important;
-  }
 
+
+/* TABLET APERTURE: lightweight artwork with both original rotations active.
+   Keep the SVG filter pipeline off the tablet GPU; rotate only the two
+   pre-rendered layers. This is tablet-only. */
+@media (min-width:701px) and (max-width:1366px) and (pointer:coarse) {
+  .fx-bg svg.aperture { display:none !important; }
   .fx-bg .ap2 {
     display:block !important;
+    width:min(900px,88vmin) !important;
+    max-width:92vw !important;
+    height:auto !important;
+    aspect-ratio:1;
     filter:none !important;
     -webkit-filter:none !important;
     mask-image:none !important;
@@ -392,47 +369,39 @@ html.off-blur *, html.off-blur *::before, html.off-blur *::after { -webkit-backd
     rotate:none !important;
     transform:translate3d(0,0,0) !important;
     isolation:isolate;
-    contain:layout paint;
     backface-visibility:hidden;
     -webkit-backface-visibility:hidden;
   }
-
   .fx-bg .ap2 .ly {
     display:block !important;
     filter:none !important;
     -webkit-filter:none !important;
-    mask-image:none !important;
-    -webkit-mask-image:none !important;
     transform-origin:50% 50%;
     backface-visibility:hidden;
     -webkit-backface-visibility:hidden;
-    will-change:transform;
   }
-
   .fx-bg .ap2 .ly-s {
     animation:none !important;
     transform:translate3d(0,0,0) !important;
   }
-
   .fx-bg .ap2 .ly-a {
     animation:spin 90s linear infinite !important;
+    animation-play-state:running !important;
     transform-origin:50% 50%;
-    transform:translateZ(0);
+    will-change:transform;
   }
-
   .fx-bg .ap2 .ly-b {
     animation:spin 140s linear infinite reverse !important;
+    animation-play-state:running !important;
     transform-origin:50% 50%;
-    transform:translateZ(0);
+    will-change:transform;
   }
 }
 
-
-/* TABLET APERTURE SCALE: keep the complete circle comfortably inside
-   the viewport. Scoped to tablets only; mobile and desktop are untouched. */
-@media (min-width:701px) and (max-width:1366px) and (pointer:coarse) {
-  .fx-bg .ap2 {
-    width:min(900px,96vmin) !important;
-    max-width:96vw !important;
-  }
+/* Xiaomi Pad 6 portrait: remove the unnecessary blank tail below the hero
+   carousel while keeping the content order and carousel dimensions intact. */
+@media (min-width:701px) and (max-width:900px) and (pointer:coarse) and (orientation:portrait) {
+  #hero { min-height:0 !important; padding-bottom:0 !important; }
+  #hero .top { padding-bottom:12px !important; }
+  #heroCar .dots { padding-bottom:8px !important; }
 }
