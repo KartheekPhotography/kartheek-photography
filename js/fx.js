@@ -9,6 +9,7 @@
   const root = document.documentElement;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fine = matchMedia('(pointer: fine)').matches;
+  const tabletRenderMode = matchMedia('(min-width:701px) and (max-width:1366px) and (pointer:coarse)').matches;
   const bgEl = document.querySelector('.fx-bg');
   const progEl = document.querySelector('.fx-prog');
   const heroEl = document.getElementById('hero');
@@ -22,9 +23,13 @@
       const y = scrollY;
       const max = Math.max(1, root.scrollHeight - innerHeight);
       if (progEl) progEl.style.setProperty('--p', Math.min(1, y / max).toFixed(4));
-      /* Aperture rotation is independent of scroll; keep page progress updates separate. */
-      if (bgEl) bgEl.style.setProperty('--sy', y.toFixed(0));
-      if (heroEl) heroEl.style.setProperty('--sp', Math.min(1, y / (innerHeight * 0.85)).toFixed(3));
+      /* On touch tablets, avoid scroll-driven style writes to the fixed background
+         and hero light beam. The tablet aperture uses independent CSS image-layer
+         rotations, so these parallax variables are not needed for its motion. */
+      if (!tabletRenderMode) {
+        if (bgEl) bgEl.style.setProperty('--sy', y.toFixed(0));
+        if (heroEl) heroEl.style.setProperty('--sp', Math.min(1, y / (innerHeight * 0.85)).toFixed(3));
+      }
       queued = false;
     });
   };

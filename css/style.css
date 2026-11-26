@@ -1648,3 +1648,15 @@ input.bad { outline-offset:0 }
     margin-bottom:8px !important;
   }
 }
+
+
+/* TABLET SCROLL COMPOSITING TEST: keep the sticky header translucent but
+   remove its live backdrop blur, which can force repeated page repaints
+   during scrolling on some Android tablet browsers. */
+@media (min-width:701px) and (max-width:1366px) and (pointer:coarse) {
+  nav.scrolled {
+    -webkit-backdrop-filter:none !important;
+    backdrop-filter:none !important;
+    background:rgba(10,10,12,.88) !important;
+  }
+}
