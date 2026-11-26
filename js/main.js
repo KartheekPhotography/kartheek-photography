@@ -840,21 +840,45 @@ addEventListener('keydown', e => {
 
 
 
-/* Back to Top: additive behaviour; does not alter existing mobile logic. */
+/* Back to Top: hide while any page dialog/popup is open. This covers
+   quotation + compare modals, photo/video lightboxes, and the date picker. */
 (()=>{
   const button=document.getElementById('backToTop');
   if(!button) return;
   let scheduled=false;
+
+  const hasVisiblePopup=()=>{
+    const popups=document.querySelectorAll('dialog[open], [role="dialog"], [aria-modal="true"]');
+    return Array.from(popups).some(popup=>{
+      if(popup.hidden || popup.getAttribute('aria-hidden')==='true') return false;
+      const style=window.getComputedStyle(popup);
+      return style.display!=='none' && style.visibility!=='hidden' && popup.getClientRects().length>0;
+    });
+  };
+
   const update=()=>{
     if(scheduled) return;
     scheduled=true;
     requestAnimationFrame(()=>{
-      button.classList.toggle('is-visible',window.scrollY>420);
+      const popupOpen=hasVisiblePopup();
+      button.classList.toggle('is-visible',window.scrollY>420 && !popupOpen);
       scheduled=false;
     });
   };
+
   window.addEventListener('scroll',update,{passive:true});
   window.addEventListener('pageshow',update);
   button.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+  // Observe popup state changes, including class-based modals and [hidden]
+  // popovers, so the control updates immediately when any popup opens/closes.
+  const popupObserver=new MutationObserver(update);
+  popupObserver.observe(document.documentElement,{
+    subtree:true,
+    childList:true,
+    attributes:true,
+    attributeFilter:['class','hidden','open','aria-hidden','style']
+  });
+
   update();
 })();

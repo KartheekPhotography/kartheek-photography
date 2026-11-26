@@ -19,6 +19,21 @@ let pass = 0, fail = 0; const t = (n, ok, x = '') => { ok ? pass++ : fail++; con
   await page.route('**/api/enquiry', async route => { posts.push(route.request().postDataBuffer()); await route.fulfill({ json: { success: true } }); });
   await page.route(/imagekit|images\.kartheekphotography\.com|googleapis|gstatic|ytimg|youtube/, r => r.abort());
   await page.goto(base); await page.waitForSelector('#evBox .opt');
+  const topButton = page.locator('#backToTop');
+  await page.evaluate(() => window.scrollTo(0, 900)); await page.waitForTimeout(100);
+  t('back-to-top appears after scrolling', await topButton.evaluate(el => el.classList.contains('is-visible')));
+  // All modal/popup types suppress the floating control, not just the quote modal.
+  await page.evaluate(() => document.querySelector('#lb').classList.add('open'));
+  await page.waitForTimeout(50);
+  t('back-to-top hides for photo lightbox', !(await topButton.evaluate(el => el.classList.contains('is-visible'))));
+  await page.evaluate(() => document.querySelector('#lb').classList.remove('open'));
+  await page.waitForTimeout(50);
+  t('back-to-top returns after photo lightbox closes', await topButton.evaluate(el => el.classList.contains('is-visible')));
+  await page.evaluate(() => document.querySelector('#vb').classList.add('open'));
+  await page.waitForTimeout(50);
+  t('back-to-top hides for video popup', !(await topButton.evaluate(el => el.classList.contains('is-visible'))));
+  await page.evaluate(() => document.querySelector('#vb').classList.remove('open'));
+  await page.waitForTimeout(50);
   const chip = k => page.locator(`#evBox input[data-ev=${k}]`);
   const tick = k => page.locator(`#evBox label:has(input[data-ev=${k}])`).click();
   const panel = k => page.locator(`.panel[data-ev=${k}]`);
@@ -45,8 +60,10 @@ let pass = 0, fail = 0; const t = (n, ok, x = '') => { ok ? pass++ : fail++; con
   t('4p message', /complimentary Drone coverage/.test(await panel('engagement').locator('[data-msg]').innerText()));
   await panel('engagement').locator('[data-compare]').click();
   t('4 compare opens', await page.locator('#cb.open').count() === 1 && /Highlights Video/.test(await page.locator('#cbody').innerText()));
+  t('back-to-top hides for compare popup', !(await topButton.evaluate(el => el.classList.contains('is-visible'))));
   await page.screenshot({ path: OUT + '/ui_compare.png' });
   await page.click('#cbclose'); t('4 compare closes with X', await page.locator('#cb.open').count() === 0);
+  t('back-to-top returns after compare popup closes', await topButton.evaluate(el => el.classList.contains('is-visible')));
   // fixed + notes
   for (const k of ['pellikuthuru', 'sangeeth', 'wedding', 'mehandi']) await tick(k);
   t('5/9/11 fixed options preselected', (await panel('pellikuthuru').locator('input:checked').count()) === 1 && /hybrid style blends traditional and candid/.test(await panel('pellikuthuru').innerText()) && /Sangeeth comes with 4 Persons Coverage as standard/.test(await panel('sangeeth').innerText()) && /along with Drone coverage and a Wedding Highlights Video/.test(await panel('wedding').innerText()));
@@ -74,6 +91,7 @@ let pass = 0, fail = 0; const t = (n, ok, x = '') => { ok ? pass++ : fail++; con
   await page.click('#send');
   await page.waitForSelector('#qb.open canvas', { timeout: 20000 });
   t('popup shows rendered PDF', (await page.locator('#qview canvas').count()) >= 1);
+  t('back-to-top hides for quotation popup', !(await topButton.evaluate(el => el.classList.contains('is-visible'))));
   await page.waitForFunction(() => /shared with Kartheek/.test(document.querySelector('#qstatus').textContent));
   await page.screenshot({ path: OUT + '/ui_popup.png' });
   // popup does not close on backdrop / Escape
@@ -86,6 +104,7 @@ let pass = 0, fail = 0; const t = (n, ok, x = '') => { ok ? pass++ : fail++; con
   // Edit returns with selections preserved
   await page.click('#qedit');
   t('edit closes popup', await page.locator('#qb.open').count() === 0);
+  t('back-to-top returns after quotation popup closes', await topButton.evaluate(el => el.classList.contains('is-visible')));
   const same = (await page.inputValue('#name')) === 'Raghavi Reddy' && (await chip('albums').isChecked()) && (await panel('albums').locator('input:checked').getAttribute('value')) === '100' && (await h('bride').isChecked()) && (await h('groom').isChecked()) && (await panel('reception').locator('input:checked').getAttribute('value')) === '4';
   t('20 selections preserved after Edit', same);
   // rebuild -> second email; then Close (X)
@@ -109,10 +128,12 @@ let pass = 0, fail = 0; const t = (n, ok, x = '') => { ok ? pass++ : fail++; con
   await page.click('#qclose');
   // calendar
   await page.click('#dateBtn'); await page.waitForSelector('#dpop:not([hidden])');
+  t('back-to-top hides for date picker popup', !(await topButton.evaluate(el => el.classList.contains('is-visible'))));
   t('calendar: past days disabled, prev month locked', (await page.locator('.dpnav[data-nav="-1"]').isDisabled()) && (await page.locator('.dpday:disabled').count()) >= 0);
   await page.screenshot({ path: OUT + '/ui_calendar.png' });
   await page.click('.dpnav[data-nav="1"]'); await page.click('.dpnav[data-nav="1"]'); await page.locator('.dpday:not(:disabled)').nth(14).click();
   t('calendar: picks a date and closes', /\d{4}-\d\d-\d\d/.test(await page.inputValue('#date')) && await page.locator('#dpop[hidden]').count() === 1 && !/Select a date/.test(await page.locator('#dateText').innerText()));
+  t('back-to-top returns after date picker closes', await topButton.evaluate(el => el.classList.contains('is-visible')));
   await page.click('#send'); await page.waitForSelector('#qb.open canvas'); t('date posted with email', /name="date"/.test(posts[posts.length - 1].toString('latin1'))); await page.click('#qclose');
 
   // mobile
