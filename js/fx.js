@@ -12,8 +12,6 @@
   const bgEl = document.querySelector('.fx-bg');
   const progEl = document.querySelector('.fx-prog');
   const heroEl = document.getElementById('hero');
-  const apEl = document.querySelector('.fx-bg .ap2');
-  const phoneMq = matchMedia('(max-width: 700px)');
 
   /* scroll progress + parallax variables (read by the CSS) */
   let queued = false;
@@ -24,10 +22,8 @@
       const y = scrollY;
       const max = Math.max(1, root.scrollHeight - innerHeight);
       if (progEl) progEl.style.setProperty('--p', Math.min(1, y / max).toFixed(4));
-      /* phones: turn the aperture with a plain rotate (no inherited variable, so the
-         glow/mask layers inside are not re-drawn on every scroll frame) */
-      if (apEl && phoneMq.matches) apEl.style.rotate = (y * 0.03).toFixed(3) + 'deg';
-      else if (bgEl) bgEl.style.setProperty('--sy', y.toFixed(0));
+      /* Aperture rotation is independent of scroll; keep page progress updates separate. */
+      if (bgEl) bgEl.style.setProperty('--sy', y.toFixed(0));
       if (heroEl) heroEl.style.setProperty('--sp', Math.min(1, y / (innerHeight * 0.85)).toFixed(3));
       queued = false;
     });

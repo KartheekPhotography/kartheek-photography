@@ -228,14 +228,15 @@ html.off-blur *, html.off-blur *::before, html.off-blur *::after { -webkit-backd
     rgba(224,169,109,.09) 50%, transparent 85%);
 }
 
-/* ---------- aperture for phones (<=700px): same look + same rotation, far lighter ----------
-   The glow and the circular fade are drawn INSIDE each layer once; after that the
-   phone only turns the finished pictures. Desktop/tablet keep the original SVG. */
+/* ---------- mobile aperture: pre-rendered decorative layers ----------
+   Original artwork (including blur, glow and radial masks) is rasterised once
+   at 1200px for mobile. Rotations remain live CSS animations. Desktop keeps
+   the original vector SVG. */
 .fx-bg .ap2 { display:none; filter:none; -webkit-mask-image:none; mask-image:none }
-.ap2 .ly { position:absolute; inset:0; width:100%; height:100%; display:block }
-.ap2 .ly-a { animation:spin 90s linear infinite; will-change:transform }
-.ap2 .ly-b { animation:spin 140s linear infinite reverse; will-change:transform }
+.ap2 .ly { position:absolute; inset:0; width:100%; height:100%; display:block; object-fit:contain; pointer-events:none }
+.ap2 .ly-a { animation:spin 90s linear infinite; transform-origin:50% 50% }
+.ap2 .ly-b { animation:spin 140s linear infinite reverse; transform-origin:50% 50% }
 @media (max-width:700px) {
   .fx-bg svg.aperture { display:none }
-  .fx-bg .ap2 { display:block !important; will-change:transform }
+  .fx-bg .ap2 { display:block !important; rotate:none }
 }
