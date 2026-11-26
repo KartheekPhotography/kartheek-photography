@@ -777,15 +777,7 @@ $('#filmSections').onclick = e => {
 
 $('#vclose').onclick = closeVB;
 
-$('#vb').addEventListener('click', e => {
-  if (e.target.id === 'vb') closeVB();
-});
-
-addEventListener('keydown', e => {
-  if (e.key === 'Escape' && $('#vb').classList.contains('open')) {
-    closeVB();
-  }
-});
+// Video modal closes only via its explicit Close button; backdrop and Escape do not dismiss it.
 
 
 /* =========================================================

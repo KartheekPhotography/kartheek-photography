@@ -26,7 +26,7 @@
     input.dispatchEvent(new Event('change', { bubbles: true }));
   }
 
-  function render() {
+  function renderCalendar() {
     const y = view.getFullYear(), m = view.getMonth();
     const first = new Date(y, m, 1).getDay(), days = new Date(y, m + 1, 0).getDate();
     const atMin = y === today.getFullYear() && m === today.getMonth();
@@ -38,12 +38,31 @@
     }
     pop.innerHTML =
       `<div class="dphead"><button type="button" class="dpnav" data-nav="-1" aria-label="Previous month"${atMin ? ' disabled' : ''}>&#8249;</button>` +
-      `<div class="dptitle" aria-live="polite">${MONTHS[m]} <span>${y}</span></div>` +
+      `<button type="button" class="dptitle dp-title-button" data-act="jump" aria-label="Choose month and year">${MONTHS[m]} <span>${y}</span></button>` +
       `<button type="button" class="dpnav" data-nav="1" aria-label="Next month">&#8250;</button></div>` +
       `<div class="dpwk" aria-hidden="true">${['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(w => `<span>${w}</span>`).join('')}</div>` +
       `<div class="dpgrid">${cells}</div>` +
       `<div class="dpfoot"><button type="button" class="dplink" data-act="clear">Clear</button><button type="button" class="dplink" data-act="today">Today</button></div>`;
   }
+
+  function renderJump() {
+    const selected = input.value ? parse(input.value) : view;
+    const y = selected.getFullYear(), m = selected.getMonth(), d = selected.getDate();
+    const yearOptions = Array.from({length: 11}, (_, i) => today.getFullYear() + i)
+      .map(v => `<option value="${v}"${v === y ? ' selected' : ''}>${v}</option>`).join('');
+    const monthOptions = MONTHS.map((v, i) => `<option value="${i}"${i === m ? ' selected' : ''}>${v}</option>`).join('');
+    const dayOptions = Array.from({length: 31}, (_, i) => i + 1)
+      .map(v => `<option value="${v}"${v === d ? ' selected' : ''}>${v}</option>`).join('');
+    pop.innerHTML =
+      `<div class="dpjump-head"><span class="dpjump-kicker">JUMP TO DATE</span><button type="button" class="dplink" data-act="back">Back to calendar</button></div>` +
+      `<div class="dpjump-grid">` +
+      `<label class="dpjump-field"><span>Day</span><select id="dpJumpDay">${dayOptions}</select></label>` +
+      `<label class="dpjump-field"><span>Month</span><select id="dpJumpMonth">${monthOptions}</select></label>` +
+      `<label class="dpjump-field"><span>Year</span><select id="dpJumpYear">${yearOptions}</select></label>` +
+      `</div><div class="dpjump-note">Choose a date, then apply to view the calendar.</div>` +
+      `<div class="dpjump-actions"><button type="button" class="dplink" data-act="cancel-jump">Cancel</button><button type="button" class="dpapply" data-act="apply-jump">Apply</button></div>`;
+  }
+  function render() { renderCalendar(); }
 
   function open() {
     view = input.value ? new Date(parse(input.value).getFullYear(), parse(input.value).getMonth(), 1) : new Date(today.getFullYear(), today.getMonth(), 1);
@@ -61,11 +80,30 @@
   btn.addEventListener('click', () => (pop.hidden ? open() : close(true)));
   back.addEventListener('click', () => close(true));
   pop.addEventListener('click', e => {
-    e.stopPropagation();   // the re-drawn buttons would otherwise look like an outside click
+    e.stopPropagation();
     const nav = e.target.closest('[data-nav]'), day = e.target.closest('.dpday'), act = e.target.closest('[data-act]');
-    if (nav) { view = new Date(view.getFullYear(), view.getMonth() + +nav.dataset.nav, 1); render(); const n = pop.querySelector(`[data-nav="${nav.dataset.nav}"]:not(:disabled)`); if (n) n.focus({ preventScroll: true }); }
-    else if (day) { setValue(day.dataset.v); close(true); }
-    else if (act) { act.dataset.act === 'clear' ? setValue('') : setValue(minIso); close(true); }
+    if (nav) {
+      view = new Date(view.getFullYear(), view.getMonth() + +nav.dataset.nav, 1);
+      renderCalendar();
+    } else if (day) {
+      setValue(day.dataset.v); close(true);
+    } else if (act) {
+      if (act.dataset.act === 'jump') renderJump();
+      else if (act.dataset.act === 'back' || act.dataset.act === 'cancel-jump') renderCalendar();
+      else if (act.dataset.act === 'apply-jump') {
+        const dayValue = +pop.querySelector('#dpJumpDay').value;
+        const monthValue = +pop.querySelector('#dpJumpMonth').value;
+        const yearValue = +pop.querySelector('#dpJumpYear').value;
+        const maxDay = new Date(yearValue, monthValue + 1, 0).getDate();
+        const chosen = new Date(yearValue, monthValue, Math.min(dayValue, maxDay));
+        if (iso(chosen) < minIso) chosen.setTime(today.getTime());
+        view = new Date(chosen.getFullYear(), chosen.getMonth(), 1);
+        setValue(iso(chosen)); renderCalendar(); close(true);
+      } else {
+        act.dataset.act === 'clear' ? setValue('') : setValue(minIso);
+        close(true);
+      }
+    }
   });
   document.addEventListener('keydown', e => {
     if (pop.hidden) return;

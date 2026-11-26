@@ -1493,6 +1493,10 @@ input.bad { outline-offset:0 }
   .ctab { font-size:14px; table-layout:fixed }
   .ctab tbody th { white-space:normal; width:28% }
   .cbody { padding:10px 10px 16px }
+  .dp-title-button{
+    font:400 19px var(--hd)
+  }
+  
 }
 
 
@@ -1962,3 +1966,20 @@ input[aria-invalid="true"], button[aria-invalid="true"] {
   #lbart.lb-image-enter-next,
   #lbart.lb-image-enter-prev { animation:none; }
 }
+
+
+/* Month/year quick navigation — uses the existing calendar palette. */
+.dp-title-button{border:0;background:transparent;color:var(--fg);padding:5px 8px;border-radius:10px;cursor:pointer;border: 2px solid var(--line);transition:color .18s ease,background .18s ease}
+.dp-title-button:hover,.dp-title-button:focus-visible{color:var(--amber);background:#e0a96d12}
+.dp-title-mark{display:inline-block;margin-left:7px;color:var(--amber);font:500 14px var(--bd);vertical-align:middle}
+.dpjump-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:18px}
+.dpjump-kicker{color:var(--mut);font:500 11px var(--bd);letter-spacing:.14em}
+.dpjump-grid{display:grid;grid-template-columns:.8fr 1.5fr 1fr;gap:9px}
+.dpjump-field{display:flex;flex-direction:column;gap:8px;min-width:0;color:var(--mut);font:500 12px var(--bd)}
+.dpjump-field select{width:100%;min-width:0;height:46px;padding:0 10px;border:1px solid var(--line);border-radius:12px;background:#201e1d;color:var(--fg);color-scheme:dark;font:500 14px var(--bd);outline:none}
+.dpjump-field select:focus{border-color:var(--amber);box-shadow:0 0 0 3px #e0a96d18}
+.dpjump-note{margin-top:14px;color:var(--mut);font:400 12px/1.5 var(--bd)}
+.dpjump-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px;padding-top:12px;border-top:1px dashed var(--line)}
+.dpapply{min-width:92px;padding:9px 18px;border:1px solid var(--amber);border-radius:999px;background:var(--amber);color:#1a1612;font:500 14px var(--bd);cursor:pointer;transition:filter .18s ease,transform .18s ease}
+.dpapply:hover{filter:brightness(1.06);transform:translateY(-1px)}
+@media(max-width:600px){.dpjump-grid{gap:7px}.dpjump-field select{height:48px;padding:0 7px;font-size:13px}}
