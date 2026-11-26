@@ -2041,3 +2041,41 @@ input[aria-invalid="true"], button[aria-invalid="true"] {
   #qsuccess .qsuccess-title { font-size:23px; }
   #qsuccess .qsuccess-actions { padding:0 20px 20px; }
 }
+
+
+/* Individual event-panel remove control, styled to blend into the existing UI. */
+#panels .panel-head {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  width:100%;
+  margin:0 0 12px;
+}
+#panels .panel-head h4 {
+  margin:0;
+  min-width:0;
+}
+#panels .event-remove {
+  flex:0 0 30px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:30px;
+  height:30px;
+  padding:0 0 2px;
+  border:1px solid var(--line);
+  border-radius:50%;
+  background:transparent;
+  color:var(--mut);
+  font:300 22px/1 var(--bd);
+  cursor:pointer;
+  transition:color .2s ease,background .2s ease,border-color .2s ease;
+}
+#panels .event-remove:hover,
+#panels .event-remove:focus-visible {
+  color:var(--bg);
+  background:var(--fg);
+  border-color:var(--fg);
+  outline:none;
+}

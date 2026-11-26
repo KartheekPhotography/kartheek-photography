@@ -41,12 +41,25 @@
       body = `<div class="opts">${ev.options.map(o => `<label class="opt"><input type="checkbox" data-opt="${o.id}"><span>${esc(o.label)}</span></label>`).join('')}</div>` +
         `<div data-haldi-notes></div>`;
     }
-    return `<div class="panel" data-ev="${ev.key}" hidden><h4>${esc(title)}</h4>${body}</div>`;
+    return `<div class="panel" data-ev="${ev.key}" hidden><div class="panel-head"><h4>${esc(title)}</h4><button type="button" class="event-remove" data-remove-event="${ev.key}" aria-label="Remove ${esc(ev.label)}" title="Remove event">&times;</button></div>${body}</div>`;
   }).join('');
 
   const chip = k => evBox.querySelector(`input[data-ev="${k}"]`);
   const panel = k => panelsBox.querySelector(`.panel[data-ev="${k}"]`);
   const evOf = k => CFG.EVENTS.find(e => e.key === k);
+
+  // Each expanded event panel can be removed directly; the source chip at the
+  // top is the single source of truth, so unchecking it also hides this panel.
+  panelsBox.addEventListener('click', e => {
+    const remove = e.target.closest('[data-remove-event]');
+    if (!remove) return;
+    const key = remove.dataset.removeEvent;
+    const checkbox = chip(key);
+    if (!checkbox) return;
+    checkbox.checked = false;
+    sync();
+    clearErrors();
+  });
 
   /* ---------- read the current selection ---------- */
   function getSelection() {
