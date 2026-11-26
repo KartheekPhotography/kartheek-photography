@@ -12,6 +12,7 @@
   const bgEl = document.querySelector('.fx-bg');
   const progEl = document.querySelector('.fx-prog');
   const heroEl = document.getElementById('hero');
+  const mobileViewport = matchMedia('(max-width: 700px)');
 
   /* scroll progress + parallax variables (read by the CSS) */
   let queued = false;
@@ -23,7 +24,9 @@
       const max = Math.max(1, root.scrollHeight - innerHeight);
       if (progEl) progEl.style.setProperty('--p', Math.min(1, y / max).toFixed(4));
       /* Aperture rotation is independent of scroll; keep page progress updates separate. */
-      if (bgEl) bgEl.style.setProperty('--sy', y.toFixed(0));
+      // Keep the fixed decorative background out of the mobile scroll repaint path.
+      // Desktop retains its original parallax variable.
+      if (bgEl && !mobileViewport.matches) bgEl.style.setProperty('--sy', y.toFixed(0));
       if (heroEl) heroEl.style.setProperty('--sp', Math.min(1, y / (innerHeight * 0.85)).toFixed(3));
       queued = false;
     });

@@ -10,6 +10,11 @@ const IMAGEKIT_BASE = 'https://ik.imagekit.io/goamqjl1w7';
 const imageUrl = path =>
   `${IMAGEKIT_BASE}/${String(path).replace(/^\/+/, '')}`;
 
+// Deliver appropriately sized, modern-format images for carousel previews.
+// The original URL is retained for the full-screen lightbox.
+const previewUrl = (url, width = 1100) =>
+  `${url}${url.includes('?') ? '&' : '?'}tr=w-${width},q-78,f-auto`; 
+
 
 /* =========================================================
    GALLERY CATEGORIES
@@ -94,25 +99,20 @@ const probe = url => new Promise(resolve => {
 
 async function findImages(folder) {
   const out = [];
-
-  for (let n = 1; n <= 60; n++) {
+  // Most albums are short. Probe extensions for each index concurrently,
+  // while keeping index order so a missing number still ends the album.
+  // This avoids the old serial JPG -> JPEG -> PNG -> WEBP network waterfall.
+  const MAX_IMAGES = 36;
+  for (let n = 1; n <= MAX_IMAGES; n++) {
     const nn = String(n).padStart(2, '0');
-    let found = null;
-
-    for (const ext of EXT) {
+    const candidates = await Promise.all(EXT.map(async ext => {
       const url = imageUrl(`${folder}/${nn}.${ext}`);
-
-      if (await probe(url)) {
-        found = url;
-        break;
-      }
-    }
-
+      return await probe(url) ? url : null;
+    }));
+    const found = candidates.find(Boolean);
     if (!found) break;
-
     out.push(found);
   }
-
   return out;
 }
 
@@ -161,12 +161,51 @@ function carousel(root, urls, options = {}) {
     dots.appendChild(button);
   });
 
+  // Load the transformed preview first, but fall back to the original
+  // ImageKit asset if the transformation URL is unavailable or rejected.
+  // This prevents a valid original image from becoming a blank carousel slide.
+  const imageLoads = new Map();
+
   const load = i => {
     const slide = slides[i];
+    if (!slide) return Promise.resolve(false);
 
-    if (slide && !slide.style.backgroundImage) {
-      slide.style.backgroundImage = `url("${urls[i]}")`;
-    }
+    if (imageLoads.has(i)) return imageLoads.get(i);
+
+    const promise = new Promise(resolve => {
+      const candidates = [previewUrl(urls[i], 1100), urls[i]];
+      let candidateIndex = 0;
+
+      const tryNext = () => {
+        if (candidateIndex >= candidates.length) {
+          resolve(false);
+          return;
+        }
+
+        const candidate = candidates[candidateIndex++];
+        const img = new Image();
+        img.decoding = 'async';
+
+        img.onload = async () => {
+          try {
+            if (img.decode) await img.decode();
+          } catch (_) {
+            // The load event is sufficient on browsers without decode support.
+          }
+
+          slide.style.backgroundImage = `url("${candidate}")`;
+          resolve(true);
+        };
+
+        img.onerror = tryNext;
+        img.src = candidate;
+      };
+
+      tryNext();
+    });
+
+    imageLoads.set(i, promise);
+    return promise;
   };
 
   function play() {
@@ -239,22 +278,28 @@ function carousel(root, urls, options = {}) {
 
     started = true;
 
-    const img = new Image();
+    // Wait for the actual slide preview (with original-image fallback)
+    // before revealing the first slide. Previously only the original URL
+    // was tested, while the transformed preview could fail and leave the
+    // carousel showing an empty dark panel.
+    load(0).then(loaded => {
+      if (destroyed) return;
 
-    img.onload = img.onerror = () => {
-      load(0);
+      if (!loaded) {
+        root.classList.add('carousel-image-error');
+        return;
+      }
 
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
           if (destroyed) return;
 
           go(0, true);
+          load(1 % N);
           setTimeout(play, options.delay || 0);
         });
       });
-    };
-
-    img.src = urls[0];
+    });
   };
 
   if ('IntersectionObserver' in window) {
@@ -483,29 +528,40 @@ function showCat(i) {
     </div>
   `).join('');
 
+  // Discover and load each album only shortly before it enters the viewport.
+  // Previously every album in a category started probing dozens of URLs at once.
+  const albumObserver = 'IntersectionObserver' in window
+    ? new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting) return;
+          albumObserver.unobserve(entry.target);
+          loadAlbum(entry.target);
+        });
+      }, { rootMargin: '500px 0px' })
+    : null;
+
+  async function loadAlbum(element) {
+    if (element.dataset.loading === '1') return;
+    element.dataset.loading = '1';
+    const k = Number(element.id.replace('sc', ''));
+    const folder = `src/gallery/${category.id}/carousel-${k + 1}`;
+    const urls = await findImages(folder);
+    if (!document.body.contains(element)) return;
+    if (!urls.length) {
+      element.innerHTML = '<p class="empty">No images available.</p>';
+      return;
+    }
+    stops.push(carousel(element, urls, {
+      interval: 4200,
+      delay: Math.min(k, 3) * 350,
+      open: openLB
+    }));
+  }
+
   category.subs.forEach((title, k) => {
-    const folder =
-      `src/gallery/${category.id}/carousel-${k + 1}`;
-
     const element = $('#sc' + k);
-
-    findImages(folder).then(urls => {
-      if (!document.body.contains(element)) return;
-
-      if (!urls.length) {
-        element.innerHTML =
-          '<p class="empty">No images available.</p>';
-        return;
-      }
-
-      stops.push(
-        carousel(element, urls, {
-          interval: 4200,
-          delay: k * 1300,
-          open: openLB
-        })
-      );
-    });
+    if (albumObserver) albumObserver.observe(element);
+    else loadAlbum(element);
   });
 }
 
