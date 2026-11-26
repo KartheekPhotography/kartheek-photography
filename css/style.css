@@ -1900,3 +1900,65 @@ input[aria-invalid="true"], button[aria-invalid="true"] {
     font-size:24px;
   }
 }
+
+
+/* Lightbox controls intentionally mirror the homepage carousel .ar buttons. */
+#lb .lb-image-wrap .lb-arrow {
+  position:absolute;
+  top:50%;
+  translate:0 -50%;
+  transform:none;
+  width:50px;
+  height:50px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 0 2px;
+  border:1px solid #efeae288;
+  border-radius:50%;
+  background:#0a0a0c88;
+  color:var(--fg);
+  font:400 24px/1 var(--bd);
+  text-align:center;
+  cursor:pointer;
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  box-shadow:none;
+  transition:background .2s ease,color .2s ease,border-color .2s ease;
+}
+#lb .lb-image-wrap .lb-arrow:hover,
+#lb .lb-image-wrap .lb-arrow:focus-visible {
+  transform:none;
+  background: rgba(224, 169, 109, .9);
+  color: #14110d;
+  border-color: var(--amber);
+}
+#lb .lb-image-wrap .lb-arrow:active {
+  transform:none;
+}
+#lb .lb-image-wrap .lb-prev { left:14px; right:auto; }
+#lb .lb-image-wrap .lb-next { right:14px; left:auto; }
+@media(max-width:600px) {
+  #lb .lb-image-wrap .lb-arrow {
+    width:38px;
+    height:38px;
+    font-size:20px;
+    padding-bottom:2px;
+  }
+  #lb .lb-image-wrap .lb-prev { left:10px; }
+  #lb .lb-image-wrap .lb-next { right:10px; }
+}
+
+/* Match the homepage carousel's gentle cross-fade and restrained zoom settle. */
+@keyframes lbHomepageSlide {
+  from { opacity:.88; transform:scale(1.025); }
+  to   { opacity:1; transform:scale(1); }
+}
+#lbart.lb-image-enter-next,
+#lbart.lb-image-enter-prev {
+  animation:lbHomepageSlide 420ms ease-out both;
+}
+@media(prefers-reduced-motion:reduce) {
+  #lbart.lb-image-enter-next,
+  #lbart.lb-image-enter-prev { animation:none; }
+}
