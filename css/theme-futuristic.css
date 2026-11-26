@@ -428,3 +428,64 @@ html.off-blur *, html.off-blur *::before, html.off-blur *::after { -webkit-backd
     -webkit-backface-visibility:hidden;
   }
 }
+
+
+/* TABLET RENDERING PASS 2
+   Keep the moving aperture as separate lightweight image layers, while
+   removing the expensive full-screen SVG turbulence grain overlay on tablets.
+   The vignette and all page content remain visible. Also explicitly restore
+   the four gallery category pills: no backdrop-filter on touch tablets. */
+@media (min-width:701px) and (max-width:1366px) and (pointer:coarse) {
+  /* SVG feTurbulence grain is costly to composite over a scrolling page.
+     Its very subtle texture is omitted on tablets only. */
+  .fx-grain {
+    display:none !important;
+  }
+
+  /* Keep the vignette as a single simple fixed gradient layer. */
+  .fx-vig {
+    -webkit-backdrop-filter:none !important;
+    backdrop-filter:none !important;
+    transform:translateZ(0);
+  }
+
+  /* Stable, fully visible category controls (Weddings, Pre-weddings,
+     Engagement, Haldi); preserve the existing glass-like appearance
+     without asking the tablet to blur the live page behind each pill. */
+  #tabs {
+    display:flex !important;
+    flex-wrap:wrap !important;
+    align-items:center !important;
+    gap:10px !important;
+    overflow:visible !important;
+  }
+  #tabs .chip {
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    flex:0 0 auto !important;
+    width:auto !important;
+    min-width:0 !important;
+    min-height:44px !important;
+    padding:9px 18px !important;
+    border:1px solid rgba(224,169,109,.35) !important;
+    border-radius:999px !important;
+    background:rgba(20,18,16,.82) !important;
+    color:var(--fg) !important;
+    font:500 15px var(--bd) !important;
+    line-height:1.2 !important;
+    white-space:nowrap !important;
+    opacity:1 !important;
+    visibility:visible !important;
+    -webkit-backdrop-filter:none !important;
+    backdrop-filter:none !important;
+    box-shadow:none !important;
+    transform:none !important;
+  }
+  #tabs .chip.on {
+    background:linear-gradient(135deg,rgba(224,169,109,.34),rgba(224,169,109,.12)) !important;
+    color:#fff6e6 !important;
+    border-color:var(--amber) !important;
+    box-shadow:0 0 20px -8px var(--glow),inset 0 0 12px rgba(224,169,109,.12) !important;
+  }
+}
