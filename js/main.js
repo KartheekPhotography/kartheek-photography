@@ -797,9 +797,14 @@ let LB = {
   i: 0
 };
 
-function showLB() {
+function showLB(direction = 'next') {
   LB.i = (LB.i + LB.urls.length) % LB.urls.length;
-  $('#lbart').src = LB.urls[LB.i];
+  const image = $('#lbart');
+  image.classList.remove('lb-image-enter-next', 'lb-image-enter-prev');
+  // Restart the short transition even when users navigate quickly.
+  void image.offsetWidth;
+  image.src = LB.urls[LB.i];
+  image.classList.add(direction === 'prev' ? 'lb-image-enter-prev' : 'lb-image-enter-next');
 }
 
 function openLB(urls, i) {
@@ -818,12 +823,12 @@ $('#close').onclick = () => {
 
 $('#prev').onclick = () => {
   LB.i--;
-  showLB();
+  showLB('prev');
 };
 
 $('#next').onclick = () => {
   LB.i++;
-  showLB();
+  showLB('next');
 };
 
 // Touch swipe navigation for mobile gallery lightbox.

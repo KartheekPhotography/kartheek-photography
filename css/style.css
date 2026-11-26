@@ -1814,3 +1814,89 @@ input.bad { outline-offset:0 }
   #lb .lb-image-wrap .lb-prev { left:8px; }
   #lb .lb-image-wrap .lb-next { right:8px; }
 }
+
+
+/* Premium inline validation: keep feedback beside the field that needs attention. */
+.field-error {
+  display:block;
+  margin:8px 0 0;
+  color:var(--amber);
+  font-size:14px;
+  line-height:1.45;
+  font-weight:400;
+}
+.field-error::before {
+  content:"";
+  display:inline-block;
+  width:5px;
+  height:5px;
+  margin:0 9px 2px 1px;
+  border-radius:50%;
+  background:currentColor;
+}
+.q.bad, #evBox.bad, #panels .panel.bad {
+  outline:1px solid rgba(213,160,96,.48);
+  outline-offset:7px;
+  border-radius:10px;
+}
+input[aria-invalid="true"], button[aria-invalid="true"] {
+  border-color:var(--amber);
+}
+#err:empty { display:none; }
+
+/* Subtle gallery transition: a tiny directional drift with a soft fade. */
+@keyframes lbImageEnterNext {
+  from { opacity:.94; transform:translateX(4px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+@keyframes lbImageEnterPrev {
+  from { opacity:.94; transform:translateX(-4px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+#lbart.lb-image-enter-next {
+  animation:lbImageEnterNext 180ms ease-out both;
+}
+#lbart.lb-image-enter-prev {
+  animation:lbImageEnterPrev 180ms ease-out both;
+}
+@media (prefers-reduced-motion:reduce) {
+  #lbart.lb-image-enter-next,
+  #lbart.lb-image-enter-prev { animation:none; }
+}
+
+
+/* Keep inline validation within the field column, beneath the input. */
+.fgrid .q {
+  min-width:0;
+}
+.fgrid .q > .field-error {
+  grid-column:auto;
+  width:100%;
+  margin:9px 0 0;
+  padding:0 2px;
+  box-sizing:border-box;
+}
+.field-error {
+  display:block;
+  color:var(--amber);
+  font-size:14px;
+  line-height:1.4;
+}
+
+/* Center the arrow glyph, not just the button's box. */
+#lb .lb-image-wrap .lb-arrow {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 0 3px;
+  line-height:1;
+  text-align:center;
+  font-size:27px;
+  box-sizing:border-box;
+}
+@media(max-width:600px) {
+  #lb .lb-image-wrap .lb-arrow {
+    padding-bottom:3px;
+    font-size:24px;
+  }
+}

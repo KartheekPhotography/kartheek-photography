@@ -177,17 +177,45 @@
   /* ---------- errors ---------- */
   function clearErrors() {
     errBox.innerHTML = '';
+    F.querySelectorAll('.field-error').forEach(e => e.remove());
     F.querySelectorAll('.bad').forEach(e => e.classList.remove('bad'));
     F.querySelectorAll('[aria-invalid]').forEach(e => e.removeAttribute('aria-invalid'));
   }
+  function errorAnchor(field) {
+    if (field === 'events') return evBox;
+    if (field === 'dateBtn' || field === 'consent') {
+      const control = F.querySelector(`#${field}`);
+      return control ? control.closest('.q') || control : null;
+    }
+    const control = F.querySelector(`#${field}`);
+    if (control) return control.closest('.q') || control;
+    return panel(field);
+  }
   function showErrors(errs) {
-    errBox.innerHTML = '<ul>' + errs.map(e => `<li>${esc(e.msg)}</li>`).join('') + '</ul>';
+    errBox.innerHTML = '';
     for (const e of errs) {
-      let el = F.querySelector(`#${e.field}`) || (e.field === 'events' ? evBox : panel(e.field));
-      if (el) { el.classList.add('bad'); if (el.tagName === 'INPUT') el.setAttribute('aria-invalid', 'true'); }
+      const anchor = errorAnchor(e.field);
+      if (!anchor) continue;
+      anchor.classList.add('bad');
+      const message = document.createElement('p');
+      message.className = 'field-error';
+      message.setAttribute('role', 'alert');
+      message.textContent = e.msg;
+      // Keep the message inside its own form-field wrapper. Inserting after
+      // the wrapper makes CSS grid place it in the neighbouring column.
+      anchor.appendChild(message);
+      const control = e.field === 'events' ? evBox.querySelector('input')
+        : e.field === 'dateBtn' ? $('#dateBtn')
+        : e.field === 'consent' ? $('#consent')
+        : F.querySelector(`#${e.field}`) || (panel(e.field) && panel(e.field).querySelector('input'));
+      if (control) control.setAttribute('aria-invalid', 'true');
     }
     const first = F.querySelector('.bad');
-    if (first) { first.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (first.focus && first.tagName === 'INPUT') first.focus({ preventScroll: true }); }
+    if (first) {
+      first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      const control = first.matches('input,button,textarea,select') ? first : first.querySelector('input,button,textarea,select');
+      if (control && control.focus) control.focus({ preventScroll: true });
+    }
   }
 
   F.addEventListener('input', () => { sync(); clearErrors(); });
