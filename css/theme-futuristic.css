@@ -405,3 +405,26 @@ html.off-blur *, html.off-blur *::before, html.off-blur *::after { -webkit-backd
   #hero .top { padding-bottom:12px !important; }
   #heroCar .dots { padding-bottom:8px !important; }
 }
+
+/* TABLET GPU LOAD REDUCTION — preserve the artwork and aperture motion.
+   The two soft background orbs are held at the midpoint of their existing
+   drift paths. Their colour, size, opacity and 90px blur remain unchanged;
+   this removes two large blurred transform animations from the scroll path.
+   Scoped to touch tablets only; mobile and desktop are untouched. */
+@media (min-width:701px) and (max-width:1366px) and (pointer:coarse) {
+  .fx-bg .o1 {
+    animation:none !important;
+    transform:translate3d(5vw,-7vh,0) scale(1.075) !important;
+  }
+  .fx-bg .o2 {
+    animation:none !important;
+    transform:translate3d(-4.5vw,8vh,0) scale(1.05) !important;
+  }
+  /* Keep fixed decorative overlays stable while the document scrolls. */
+  .fx-bg,
+  .fx-grain,
+  .fx-vig {
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+  }
+}
