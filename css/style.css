@@ -1983,3 +1983,61 @@ input[aria-invalid="true"], button[aria-invalid="true"] {
 .dpapply{min-width:92px;padding:9px 18px;border:1px solid var(--amber);border-radius:999px;background:var(--amber);color:#1a1612;font:500 14px var(--bd);cursor:pointer;transition:filter .18s ease,transform .18s ease}
 .dpapply:hover{filter:brightness(1.06);transform:translateY(-1px)}
 @media(max-width:600px){.dpjump-grid{gap:7px}.dpjump-field select{height:48px;padding:0 7px;font-size:13px}}
+
+
+/* Final quotation confirmation — same modal shell and visual language as the PDF preview. */
+#qsuccess .qsuccess-box { width:min(94vw,560px); }
+#qsuccess .qsuccess-body {
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  padding:30px 30px 24px;
+  background:var(--bg2);
+}
+#qsuccess .qsuccess-icon {
+  display:grid;
+  place-items:center;
+  width:66px;
+  height:66px;
+  margin:2px 0 18px;
+  border:1px solid color-mix(in srgb,var(--amber) 58%,transparent);
+  border-radius:50%;
+  color:var(--amber);
+  background:color-mix(in srgb,var(--amber) 9%,transparent);
+}
+#qsuccess .qsuccess-icon svg { width:34px;height:34px; }
+#qsuccess .qsuccess-title {
+  margin:0;
+  color:var(--fg);
+  font:400 25px/1.25 var(--hd);
+}
+#qsuccess .qsuccess-title span { color:var(--amber); }
+#qsuccess .qsuccess-message {
+  max-width:420px;
+  margin:13px 0 0;
+  color:var(--fg);
+  font:400 14px/1.75 var(--bd);
+}
+#qsuccess .qsuccess-followup {
+  max-width:410px;
+  margin:9px 0 0;
+  color:var(--mut);
+  font:400 13px/1.7 var(--bd);
+}
+#qsuccess .qsuccess-actions {
+  display:flex;
+  justify-content:center;
+  padding:0 24px 24px;
+}
+#qsuccess .qsuccess-actions .btn {
+  min-width:140px;
+  min-height:44px;
+  padding:10px 24px;
+  border-radius:999px;
+}
+@media(max-width:600px) {
+  #qsuccess .qsuccess-body { padding:25px 20px 20px; }
+  #qsuccess .qsuccess-title { font-size:23px; }
+  #qsuccess .qsuccess-actions { padding:0 20px 20px; }
+}

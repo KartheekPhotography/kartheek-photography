@@ -141,7 +141,23 @@ if(q)q.split(',').forEach(function(k){document.documentElement.classList.add('of
   <div class="qbox" tabindex="-1">
     <div class="qhead"><h3>Your quotation</h3></div>
     <div class="qview" id="qview" aria-live="polite"></div>
-    <div class="qbar"><div class="qmeta"><span class="qstatus" id="qstatus" role="status"></span><div class="qcount" id="qcount" hidden><span class="qcount-label">Quotation saved · session reminder</span><span class="qcount-time" id="qcountTime">10:00</span></div></div><span class="qbtns"><button type="button" class="btn ghost" id="qedit">Edit</button><button type="button" class="btn ghost" id="qsubmit">Submit quotation</button><button type="button" class="btn" id="qdl">Download</button></span></div>
+    <div class="qbar"><div class="qmeta"><span class="qstatus" id="qstatus" role="status"></span><div class="qcount" id="qcount" hidden><span class="qcount-label">Quotation saved · session reminder</span><span class="qcount-time" id="qcountTime">10:00</span></div></div><span class="qbtns"><button type="button" class="btn ghost" id="qedit">Edit</button><button type="button" class="btn" id="qdl">Submit &amp; Download</button></span></div>
+  </div>
+</div>
+
+
+<div id="qsuccess" class="qmodal small" role="dialog" aria-modal="true" aria-labelledby="qsuccessTitle">
+  <div class="qbox qsuccess-box" tabindex="-1">
+    <div class="qhead"><h3 id="qsuccessTitle">Quotation submitted</h3></div>
+    <div class="qsuccess-body">
+      <div class="qsuccess-icon" aria-hidden="true">
+        <svg viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="21" stroke="currentColor" stroke-width="1.5"/><path d="m14 24.5 6.5 6.5L34 17" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <p class="qsuccess-title">Thank you<span id="qsuccessName"></span>.</p>
+      <p class="qsuccess-message">Your quotation has been successfully submitted and a copy has been downloaded. We appreciate you considering Kartheek Photography.</p>
+      <p class="qsuccess-followup">Our team will review your requirements and get in touch with you shortly.</p>
+    </div>
+    <div class="qsuccess-actions"><button type="button" class="btn" id="qsuccessClose">Continue</button></div>
   </div>
 </div>
 

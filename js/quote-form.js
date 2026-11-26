@@ -242,6 +242,20 @@
 
   /* ---------- Quotation popup (closes only via Edit or successful Submit) ---------- */
   const qb = $('#qb'), qview = $('#qview'), qstatus = $('#qstatus');
+  const qsuccess = $('#qsuccess'), qsuccessName = $('#qsuccessName');
+  function openQuoteSuccess(clientName) {
+    qsuccessName.textContent = clientName ? `, ${clientName}` : '';
+    qsuccess.classList.add('open');
+    document.documentElement.style.overflow = 'hidden';
+    qsuccess.querySelector('.qbox').focus();
+  }
+  function closeQuoteSuccess() {
+    qsuccess.classList.remove('open');
+    document.documentElement.style.overflow = '';
+    sendBtn.focus({ preventScroll: true });
+  }
+  $('#qsuccessClose').onclick = closeQuoteSuccess;
+
   let renderToken = 0;
 
   async function renderViewer(bytes, url) {
@@ -289,18 +303,18 @@
 
     const b = $('#qdl');
     const originalLabel = b.textContent;
+    const submittedName = last.client && last.client.name ? last.client.name : '';
     b.disabled = true;
-    b.textContent = 'Preparing…';
+    b.textContent = 'Submitting & preparing…';
 
     try {
-      // Download also finalizes the quotation: save the latest revision,
-      // send the final notification, then download and close/reset the form.
+      // One action now performs the complete final submission and PDF download.
       await persistQuote(last, 'submit');
       await uploadLatestPdf(last);
       await sendEmail(last, 'final');
       stopCountdown();
 
-      // Use a separate URL so resetQuotationForm can safely revoke the preview URL.
+      // Download from a separate URL because the preview URL is revoked on reset.
       const downloadUrl = URL.createObjectURL(new Blob([last.bytes], { type: 'application/pdf' }));
       const a = document.createElement('a');
       a.href = downloadUrl;
@@ -312,12 +326,13 @@
 
       closeQuote(false);
       resetQuotationForm();
+      openQuoteSuccess(submittedName);
     } catch (err) {
-      console.error('Download/final quotation failed', err);
+      console.error('Final submission/download failed', err);
       qstatus.className = 'qstatus bad';
-      qstatus.textContent = 'The quotation could not be finalized. Please try again.';
+      qstatus.textContent = 'We could not submit your quotation just yet. Please try again.';
       b.disabled = false;
-      b.textContent = originalLabel || 'Download';
+      b.textContent = originalLabel || 'Submit & Download';
     }
   };
 
@@ -335,33 +350,10 @@
     qstatus.className = 'qstatus'; qstatus.textContent = '';
     saveStatus.textContent = '';
     sendBtn.disabled = false; sendBtn.textContent = 'Build Quotation';
-    $('#qsubmit').disabled = false; $('#qsubmit').textContent = 'Submit quotation';
-    $('#qdl').disabled = false; $('#qdl').textContent = 'Download';   // was left on "Preparing…" after a download
+    $('#qdl').disabled = false; $('#qdl').textContent = 'Submit & Download';   // was left on "Preparing…" after a download
   }
 
-  $('#qsubmit').onclick = async () => {
-    if (!last || !savedQuote || building) return;
-    const b = $('#qsubmit'); b.disabled = true; b.textContent = 'Submitting…';
-    try {
-      const client = getClient(), selection = getSelection(), quote = Pricing.priceQuote(selection);
-      const now = new Date(), safeName = client.name.replace(/[^\\p{L}\\p{N}]+/gu, '_').replace(/^_+|_+$/g, '') || 'Client';
-      const fileName = CFG.FILE_NAME.replace('{name}', safeName).replace('{date}', `${two(now.getDate())}-${two(now.getMonth() + 1)}-${now.getFullYear()}`);
-      last = { ...last, client, selection, quote, bytes: PDF.build({ client, quote, date: now }), fileName, createdLabel: PDF.fmtDate(now, '.') };
-      const result = await persistQuote(last, 'submit');
-      await uploadLatestPdf(last);
-      await sendEmail(last, 'final');
-      stopCountdown();
-      qstatus.className = 'qstatus ok'; qstatus.textContent = `Submitted · Revision ${result.revision}`;
-      saveStatus.textContent = `Quotation submitted · Revision ${result.revision}`;
-      b.textContent = 'Submitted'; b.disabled = true;
-      closeQuote(false);
-      resetQuotationForm();
-    } catch (err) {
-      console.error('Final quotation submission failed', err);
-      qstatus.className = 'qstatus bad'; qstatus.textContent = 'Submission could not be completed. Please try again.';
-      b.disabled = false; b.textContent = 'Submit quotation';
-    }
-  };
+
   qb.addEventListener('keydown', e => {                             // keep Tab inside the popup; Escape is ignored on purpose
     if (e.key !== 'Tab') return;
     const f = [...qb.querySelectorAll('button')].filter(b => !b.disabled);
