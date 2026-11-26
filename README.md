@@ -129,10 +129,3 @@ This project uses a separate scheduled Worker (`cleanup-worker.js`) in addition 
 5. Test both mutually exclusive second-email paths with separate test quotations: explicit Submit sends the final PDF email; leaving a quote idle sends the inactivity PDF email. Verify the attached PDF is the latest revision and check Resend delivery logs.
 
 The browser countdown closes the quotation preview and clears the local form at ten minutes. It does not delete the saved quotation; the scheduled Worker still processes it.
-
-
-## Mobile aperture and gallery performance update
-- Mobile aperture retains its two CSS rotations and rasterised decorative artwork. A lightweight radial halo restores warm glow without a live blur filter.
-- Mobile scroll no longer writes the fixed background parallax variable on every frame.
-- Gallery album discovery is deferred until albums approach the viewport; image extension checks run concurrently per index.
-- Carousel preview images use ImageKit width/quality/format transformations; lightbox source URLs remain original.
