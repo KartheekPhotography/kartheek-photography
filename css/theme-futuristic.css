@@ -240,3 +240,98 @@ html.off-blur *, html.off-blur *::before, html.off-blur *::after { -webkit-backd
   .fx-bg svg.aperture { display:none }
   .fx-bg .ap2 { display:block !important; rotate:none }
 }
+
+
+/* =========================================================
+   TABLET-ONLY refinement (701px–1366px, touch devices)
+   Existing mobile rules (<=700px) and desktop rules are untouched.
+   ========================================================= */
+@media (min-width:701px) and (max-width:1366px) and (pointer:coarse) {
+  /* Use the existing pre-rendered artwork on tablets too. The same three
+     artwork layers and original 90s / 140s rotations are retained. */
+  .fx-bg svg.aperture { display:none }
+  .fx-bg .ap2 { display:block !important; rotate:none; }
+
+  /* Hero proportions */
+  #hero { padding-top:calc(76px + env(safe-area-inset-top,0px)); }
+  #hero .top { padding-left:6vw; padding-right:6vw; padding-bottom:24px; }
+  #hero .hl { font-size:clamp(46px,6.2vw,76px); line-height:1.06; }
+  #hint { max-width:52ch; font-size:clamp(13px,1.35vw,16px); line-height:1.65; margin-top:12px; }
+  #hero .cta { margin-top:19px; gap:10px; }
+  #hero .cta .btn { font-size:14px; padding:12px 22px; }
+
+  /* Header */
+  nav { padding:10px 4vw; }
+  .logo img { height:46px; }
+  nav a.btn { padding:8px 15px; font-size:13px; }
+
+  /* A more generous tablet carousel without changing its image ratio. */
+  #heroCar.cw { width:min(88vw,980px); }
+  #heroCar .car { border-radius:22px; }
+  #heroCar .dots { padding-top:8px; padding-bottom:22px; }
+
+  /* Quotation form: scale type and controls to tablet density. */
+  #enquire { padding-left:5vw; padding-right:5vw; }
+  .enq { gap:24px; }
+  .build-form { padding:clamp(22px,2.5vw,34px); border-radius:26px; }
+  .build-form h2 { font-size:clamp(27px,3vw,36px); line-height:1.15; }
+  .build-form > .sub { font-size:14px; line-height:1.55; }
+  .q { margin-bottom:18px; }
+  .q label { font-size:18px; line-height:1.3; margin-bottom:8px; }
+  #enqForm input:not([type=checkbox]),
+  #enqForm select,
+  #enqForm textarea { font-size:14px; padding:11px 13px; min-height:44px; }
+  #enqForm input::placeholder,
+  #enqForm textarea::placeholder { font-size:13px; opacity:.78; }
+  #enqForm textarea { min-height:100px; }
+  .dp { width:100%; }
+  .dpbtn { min-height:44px; padding:10px 13px; font-size:14px; display:flex; align-items:center; }
+  .dpbtn svg { width:18px; height:18px; flex:0 0 18px; }
+  .dpbtn #dateText { display:block; line-height:1.35; }
+  .send { font-size:14px; padding:12px 22px; }
+  .side { gap:14px; }
+  .tbox { padding:21px; border-radius:22px; }
+  .tbox h3 { font-size:22px; margin-bottom:12px; }
+  .steps li, .steps li span, .tbox .note, .reach .rbtn { font-size:14px; }
+}
+
+/* Portrait tablets: preserve readable form flow and avoid cramped columns. */
+@media (min-width:701px) and (max-width:900px) and (pointer:coarse) {
+  #hero { min-height:auto; min-height:100svh; padding-bottom:8px; }
+  #hero .top { padding-bottom:18px; }
+  #hero .hl { font-size:clamp(42px,7vw,58px); }
+  #heroCar.cw { width:90vw; }
+  #enquire { padding-left:4vw; padding-right:4vw; }
+  .enq { grid-template-columns:minmax(0,1fr); gap:18px; }
+  .build-form { padding:24px; }
+  .side { grid-template-columns:1fr 1fr; align-items:stretch; }
+  .tbox { padding:18px; }
+  .fgrid { grid-template-columns:1fr 1fr; gap:0 14px; }
+}
+
+/* Landscape tablets: keep the two-column enquiry composition balanced. */
+@media (min-width:901px) and (max-width:1366px) and (pointer:coarse) and (orientation:landscape) {
+  .enq { grid-template-columns:minmax(0,1.12fr) minmax(280px,.88fr); }
+  .fgrid { grid-template-columns:1fr 1fr; gap:0 14px; }
+}
+
+/* Compact, unobtrusive Back to Top control shared across devices. */
+#backToTop {
+  position:fixed; right:max(18px,env(safe-area-inset-right,0px));
+  bottom:max(18px,env(safe-area-inset-bottom,0px)); z-index:80;
+  width:42px; height:42px; border-radius:50%;
+  display:grid; place-items:center; padding:0;
+  border:1px solid rgba(224,169,109,.55);
+  outline:1px solid rgba(239,234,226,.16); outline-offset:3px;
+  background:rgba(18,17,16,.88); color:var(--fg);
+  box-shadow:0 5px 20px rgba(0,0,0,.28),0 0 16px rgba(224,169,109,.10);
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+  opacity:0; visibility:hidden; pointer-events:none;
+  transform:translateY(7px); transition:opacity .22s ease,transform .22s ease,visibility .22s;
+  cursor:pointer; touch-action:manipulation;
+}
+#backToTop.is-visible { opacity:1; visibility:visible; pointer-events:auto; transform:translateY(0); }
+#backToTop svg { width:17px; height:17px; display:block; }
+@media (hover:hover) and (pointer:fine) {
+  #backToTop:hover { background:var(--amber); color:#171310; transform:translateY(-2px); }
+}

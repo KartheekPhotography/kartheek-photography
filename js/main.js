@@ -838,3 +838,23 @@ addEventListener('keydown', e => {
 /* Blurred header bar after scrolling */
 (()=>{const n=document.querySelector('nav'),f=()=>n.classList.toggle('scrolled',scrollY>30);addEventListener('scroll',f,{passive:true});f()})();
 
+
+
+/* Back to Top: additive behaviour; does not alter existing mobile logic. */
+(()=>{
+  const button=document.getElementById('backToTop');
+  if(!button) return;
+  let scheduled=false;
+  const update=()=>{
+    if(scheduled) return;
+    scheduled=true;
+    requestAnimationFrame(()=>{
+      button.classList.toggle('is-visible',window.scrollY>420);
+      scheduled=false;
+    });
+  };
+  window.addEventListener('scroll',update,{passive:true});
+  window.addEventListener('pageshow',update);
+  button.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+  update();
+})();
