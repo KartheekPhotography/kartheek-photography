@@ -371,3 +371,68 @@ html.off-blur *, html.off-blur *::before, html.off-blur *::after { -webkit-backd
   #films .films { margin-top:14px !important; gap:14px !important; }
   #work .subs, #films .films { row-gap:14px !important; }
 }
+
+
+/* TABLET APERTURE: restore the same live raster-layer rotations as mobile.
+   The source PNGs contain the original visual treatment; this avoids the
+   expensive SVG blur/drop-shadow/mask pipeline while preserving the artwork.
+   The outer scroll-linked rotate is disabled, while both independent rotations
+   continue at their original 90s and 140s durations. */
+@media (min-width:701px) and (max-width:1366px) and (pointer:coarse) {
+  .fx-bg svg.aperture {
+    display:none !important;
+  }
+
+  .fx-bg .ap2 {
+    display:block !important;
+    filter:none !important;
+    -webkit-filter:none !important;
+    mask-image:none !important;
+    -webkit-mask-image:none !important;
+    rotate:none !important;
+    transform:translate3d(0,0,0) !important;
+    isolation:isolate;
+    contain:layout paint;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+  }
+
+  .fx-bg .ap2 .ly {
+    display:block !important;
+    filter:none !important;
+    -webkit-filter:none !important;
+    mask-image:none !important;
+    -webkit-mask-image:none !important;
+    transform-origin:50% 50%;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+    will-change:transform;
+  }
+
+  .fx-bg .ap2 .ly-s {
+    animation:none !important;
+    transform:translate3d(0,0,0) !important;
+  }
+
+  .fx-bg .ap2 .ly-a {
+    animation:spin 90s linear infinite !important;
+    transform-origin:50% 50%;
+    transform:translateZ(0);
+  }
+
+  .fx-bg .ap2 .ly-b {
+    animation:spin 140s linear infinite reverse !important;
+    transform-origin:50% 50%;
+    transform:translateZ(0);
+  }
+}
+
+
+/* TABLET APERTURE SCALE: keep the complete circle comfortably inside
+   the viewport. Scoped to tablets only; mobile and desktop are untouched. */
+@media (min-width:701px) and (max-width:1366px) and (pointer:coarse) {
+  .fx-bg .ap2 {
+    width:min(900px,96vmin) !important;
+    max-width:96vw !important;
+  }
+}

@@ -1618,3 +1618,33 @@ input.bad { outline-offset:0 }
   #qb .qbtns { gap: 8px; }
   #qb .qbtns .btn { flex: 1 1 28%; min-width: 0; padding: 10px 9px; font-size: 13px; }
 }
+
+/* TABLET PORTRAIT: correct the actual film-category spacing selectors.
+   Scoped to portrait touch tablets; landscape, mobile and desktop are untouched. */
+@media (min-width:701px) and (max-width:900px) and (pointer:coarse) and (orientation:portrait) {
+  #work {
+    padding-bottom:24px !important;
+  }
+
+  #films {
+    padding-top:22px !important;
+    padding-bottom:34px !important;
+  }
+
+  #filmSections .fcat + .fcat {
+    margin-top:30px !important;
+  }
+
+  #filmSections .fcat h2 + .sub {
+    margin-top:6px !important;
+    margin-bottom:10px !important;
+  }
+
+  #filmSections .fcat .rail {
+    margin-top:12px !important;
+  }
+
+  #filmSections .fcat h2 {
+    margin-bottom:8px !important;
+  }
+}
