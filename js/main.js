@@ -826,6 +826,32 @@ $('#next').onclick = () => {
   showLB();
 };
 
+// Touch swipe navigation for mobile gallery lightbox.
+(() => {
+  const image = $('#lbart');
+  let startX = 0, startY = 0, active = false;
+
+  image.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'touch' || !$('#lb').classList.contains('open')) return;
+    startX = e.clientX;
+    startY = e.clientY;
+    active = true;
+  }, { passive: true });
+
+  image.addEventListener('pointerup', e => {
+    if (!active || e.pointerType !== 'touch') return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    active = false;
+    if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+    if (dx < 0) $('#next').click();
+    else $('#prev').click();
+  }, { passive: true });
+
+  image.addEventListener('pointercancel', () => { active = false; });
+  image.addEventListener('dragstart', e => e.preventDefault());
+})();
+
 addEventListener('keydown', e => {
   if (!$('#lb').classList.contains('open')) return;
 

@@ -123,8 +123,12 @@ if(q)q.split(',').forEach(function(k){document.documentElement.classList.add('of
 
 <div id="lb" role="dialog" aria-modal="true" aria-label="Photo viewer">
   <div>
-     <img class="big" id="lbart" alt="">
-    <div class="nav"><button class="btn ghost" id="prev">Previous</button><button class="btn ghost" id="next">Next</button><button class="btn" id="close">Close</button></div></div>
+    <div class="lb-image-wrap">
+      <img class="big" id="lbart" alt="" draggable="false">
+      <button type="button" class="lb-arrow lb-prev" id="prev" aria-label="Previous photo">‹</button>
+      <button type="button" class="lb-arrow lb-next" id="next" aria-label="Next photo">›</button>
+    </div>
+    <div class="nav"><button class="btn" id="close">Close</button></div>
   </div>
 </div>
 
