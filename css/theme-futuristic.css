@@ -68,14 +68,8 @@ html { -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; sc
     clip-path:polygon(44% 0,56% 0,92% 100%,8% 100%); filter:blur(46px);
     opacity:calc(.95 - var(--sp)*.95); animation:breathe 7s ease-in-out infinite }
 @keyframes breathe { 50% { scale:1.07 1 } }
-/* Explicit SVG viewBox centre avoids mobile Chrome using each path's
-   individual bounding box as the rotation origin. */
-.aperture .spin { transform-box:view-box; transform-origin:50% 50%; animation:spin 90s linear infinite }
-.aperture .spin2 { transform-box:view-box; transform-origin:50% 50%; animation:spin 140s linear infinite reverse }
-@media (max-width:700px) {
-    /* Keep the two aperture animations; remove only scroll-driven parent rotation. */
-    .fx-bg .aperture { rotate:0deg }
-}
+.aperture .spin { transform-origin:50% 50%; animation:spin 90s linear infinite }
+.aperture .spin2 { transform-origin:50% 50%; animation:spin 140s linear infinite reverse }
 @keyframes spin { to { transform:rotate(360deg) } }
 
 /* hero carousel = a viewfinder */
