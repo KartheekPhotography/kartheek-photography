@@ -335,3 +335,52 @@ html.off-blur *, html.off-blur *::before, html.off-blur *::after { -webkit-backd
 @media (hover:hover) and (pointer:fine) {
   #backToTop:hover { background:var(--amber); color:#171310; transform:translateY(-2px); }
 }
+
+
+/* ---------- tablet aperture stability override ----------
+   Tablet-only equivalent of the lightweight mobile treatment:
+   - keep the original SVG (with live blur/drop-shadow/masks) out of the tablet render tree
+   - use the pre-rendered aperture artwork instead
+   - remove any remaining CSS filter/mask effects from the animated layers
+   - throttle the raster-layer rotation redraws to ~16 frames/sec while preserving
+     the original 90s and 140s rotation periods and directions
+   This block is intentionally separate from the existing mobile rules. */
+@media (min-width:701px) and (max-width:1366px) and (pointer:coarse) {
+  .fx-bg svg.aperture {
+    display:none !important;
+    filter:none !important;
+    -webkit-filter:none !important;
+    -webkit-mask-image:none !important;
+    mask-image:none !important;
+  }
+
+  .fx-bg .ap2 {
+    display:block !important;
+    filter:none !important;
+    -webkit-filter:none !important;
+    -webkit-mask-image:none !important;
+    mask-image:none !important;
+    -webkit-transform:translateZ(0);
+    transform:translateZ(0);
+  }
+
+  .fx-bg .ap2 .ly {
+    filter:none !important;
+    -webkit-filter:none !important;
+    -webkit-mask-image:none !important;
+    mask-image:none !important;
+    will-change:transform;
+    backface-visibility:hidden;
+    -webkit-backface-visibility:hidden;
+  }
+
+  .fx-bg .ap2 .ly-a {
+    animation:spin 90s steps(1440,end) infinite !important;
+    transform-origin:50% 50%;
+  }
+
+  .fx-bg .ap2 .ly-b {
+    animation:spin 140s steps(2240,end) infinite reverse !important;
+    transform-origin:50% 50%;
+  }
+}
