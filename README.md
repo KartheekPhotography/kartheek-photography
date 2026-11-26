@@ -1,5 +1,8 @@
 # Kartheek Photography website
 
+## Image hosting (Cloudflare R2)
+Gallery images are served from `https://images.kartheekphotography.com`. The image base URL is configured once in `js/main.js`; the logo and Instagram QR image URLs are in `index.html`. Preserve the existing `src/` object paths in the R2 bucket.
+
 Open index.html in a browser to preview (needs internet for the Google fonts).
 
 ## Where your photos go

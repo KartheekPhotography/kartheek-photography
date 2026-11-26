@@ -5,10 +5,10 @@ const $ = s => document.querySelector(s);
    IMAGEKIT CONFIGURATION
    ========================================================= */
 
-const IMAGEKIT_BASE = 'https://ik.imagekit.io/goamqjl1w7';
+const R2_IMAGE_BASE = 'https://images.kartheekphotography.com';
 
 const imageUrl = path =>
-  `${IMAGEKIT_BASE}/${String(path).replace(/^\/+/, '')}`;
+  `${R2_IMAGE_BASE}/${String(path).replace(/^\/+/, '')}`;
 
 
 /* =========================================================

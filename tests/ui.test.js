@@ -17,7 +17,7 @@ let pass = 0, fail = 0; const t = (n, ok, x = '') => { ok ? pass++ : fail++; con
   page.on('pageerror', e => errors.push(e.message));
   const posts = [];
   await page.route('**/api/enquiry', async route => { posts.push(route.request().postDataBuffer()); await route.fulfill({ json: { success: true } }); });
-  await page.route(/imagekit|googleapis|gstatic|ytimg|youtube/, r => r.abort());
+  await page.route(/imagekit|images\.kartheekphotography\.com|googleapis|gstatic|ytimg|youtube/, r => r.abort());
   await page.goto(base); await page.waitForSelector('#evBox .opt');
   const chip = k => page.locator(`#evBox input[data-ev=${k}]`);
   const tick = k => page.locator(`#evBox label:has(input[data-ev=${k}])`).click();
@@ -117,7 +117,7 @@ let pass = 0, fail = 0; const t = (n, ok, x = '') => { ok ? pass++ : fail++; con
 
   // mobile
   const m = await browser.newContext({ viewport: { width: 390, height: 780 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
-  const mp = await m.newPage(); await mp.route('**/api/enquiry', r => r.fulfill({ json: { success: true } })); await mp.route(/imagekit|googleapis|gstatic|ytimg|youtube/, r => r.abort());
+  const mp = await m.newPage(); await mp.route('**/api/enquiry', r => r.fulfill({ json: { success: true } })); await mp.route(/imagekit|images\.kartheekphotography\.com|googleapis|gstatic|ytimg|youtube/, r => r.abort());
   await mp.goto(base); await mp.waitForSelector('#evBox .opt');
   await mp.fill('#name', 'Sai Kiran'); await mp.fill('#phone', '+91 98765 43210'); await mp.fill('#city', 'Vizag'); await mp.check('#consent');
   await mp.locator('#evBox label:has(input[data-ev=wedding])').click(); await mp.locator('#evBox label:has(input[data-ev=engagement])').click();
