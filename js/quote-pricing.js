@@ -96,9 +96,11 @@
   function validate(client, sel) {
     const errs = [];
     if (!String(client.name || '').trim()) errs.push({ field: 'name', msg: 'Please tell us your name.' });
+    else if (!/^[\p{L}\p{M}][\p{L}\p{M} .’'-]*$/u.test(String(client.name).trim())) errs.push({ field: 'name', msg: 'Please enter your name using letters only.' });
     if (!String(client.phone || '').trim()) errs.push({ field: 'phone', msg: 'Please enter your contact number so we can reach you.' });
-    else if (!/^[+]?[0-9 ()-]{10,16}$/.test(String(client.phone).trim())) errs.push({ field: 'phone', msg: "That number doesn't look right. Please enter a valid mobile number, for example 9876543210." });
+    else if (!/^\d{10}$/.test(String(client.phone).trim())) errs.push({ field: 'phone', msg: 'Please enter exactly 10 digits for your mobile number.' });
     if (!String(client.city || '').trim()) errs.push({ field: 'city', msg: 'Please enter your city or venue.' });
+    else if (!/^[\p{L}\p{M}][\p{L}\p{M} .,’'-]*$/u.test(String(client.city).trim())) errs.push({ field: 'city', msg: 'Please enter the city or venue using letters only.' });
     if (!Object.keys(sel).length) errs.push({ field: 'events', msg: 'Please include at least one event to build your quotation.' });
     for (const ev of CFG.EVENTS) {
       const s = sel[ev.key];

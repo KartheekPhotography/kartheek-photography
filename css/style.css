@@ -1660,3 +1660,12 @@ input.bad { outline-offset:0 }
     background:rgba(10,10,12,.88) !important;
   }
 }
+
+/* Enlarged, accessible Instagram QR trigger and modal */
+.qr-trigger { display:block; flex:none; padding:0; border:0; border-radius:10px; background:#fff; cursor:zoom-in; line-height:0; }
+.qr-trigger img { display:block; width:104px; height:104px; object-fit:contain; border-radius:10px; }
+.qr-trigger:focus-visible { outline:2px solid var(--amber); outline-offset:4px; }
+.qr-hint { color:var(--mut); font-size:12px; }
+.qr-large-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; padding:28px 20px 32px; text-align:center; }
+.qr-large-wrap img { display:block; width:min(68vw, 380px); height:auto; aspect-ratio:1; object-fit:contain; padding:12px; border-radius:14px; background:#fff; }
+.qr-large-wrap p { color:var(--mut); font-size:14px; line-height:1.5; }

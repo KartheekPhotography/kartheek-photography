@@ -74,11 +74,11 @@ if(q)q.split(',').forEach(function(k){document.documentElement.classList.add('of
       <h2>Build your Quote</h2>
       <p class="sub">Choose the events you need and we'll build your quotation instantly. <br> Fields marked * are required.</p>
       <div class="fgrid">
-        <div class="q"><label for="name">Your name<i class="req" aria-hidden="true">*</i></label><input type="text" id="name" name="name" placeholder="Your full name" autocomplete="name" required></div>
-        <div class="q"><label for="city">City or venue<i class="req" aria-hidden="true">*</i></label><input type="text" id="city" name="city" placeholder="Hyderabad, Visakhapatnam…" autocomplete="address-level2" required></div>
+        <div class="q"><label for="name">Your name<i class="req" aria-hidden="true">*</i></label><input type="text" id="name" name="name" placeholder="Your full name" autocomplete="name" required maxlength="80"></div>
+        <div class="q"><label for="city">City or venue<i class="req" aria-hidden="true">*</i></label><input type="text" id="city" name="city" placeholder="Hyderabad, Visakhapatnam…" autocomplete="address-level2" required maxlength="100"></div>
       </div>
       <div class="fgrid">
-        <div class="q"><label for="phone">Contact number<i class="req" aria-hidden="true">*</i></label><input type="tel" id="phone" name="phone" placeholder="10-digit mobile number" inputmode="tel" autocomplete="tel" required></div>
+        <div class="q"><label for="phone">Contact number<i class="req" aria-hidden="true">*</i></label><input type="tel" id="phone" name="phone" placeholder="10-digit mobile number" inputmode="numeric" autocomplete="tel" required maxlength="10" minlength="10" pattern="[0-9]{10}"></div>
         <div class="q"><label for="dateBtn">Wedding or event date<i class="req" aria-hidden="true">*</i></label><div class="dp" id="dp"><input type="hidden" id="date" name="date"><button type="button" class="dpbtn" id="dateBtn" aria-haspopup="dialog" aria-expanded="false"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg><span id="dateText" class="dpph">Select a date</span></button><div class="dpback" id="dpback" hidden></div><div class="dpop" id="dpop" role="dialog" aria-label="Choose a date" hidden></div></div></div>
       </div>
       <div class="q" id="evBox" data-field="events"></div>
@@ -108,7 +108,7 @@ if(q)q.split(',').forEach(function(k){document.documentElement.classList.add('of
           <a class="rbtn" href="tel:+918374967795"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z"/></svg><span>Call +91 83749 67795</span></a>
           <a class="rbtn" href="https://www.instagram.com/kartheek__photography/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.2" cy="6.8" r=".8" fill="currentColor"/></svg><span>@kartheek__photography</span></a>
         </div>
-        <div class="qr"><img src="https://images.kartheekphotography.com/src/qr/instagram.jpeg" alt="QR code for the Instagram page @kartheek__photography" width="104" height="104"><p>Scan to open our Instagram</p></div>
+        <div class="qr"><button type="button" class="qr-trigger" id="qrOpen" aria-haspopup="dialog" aria-controls="qrModal" aria-label="Enlarge Instagram QR code"><img src="https://images.kartheekphotography.com/src/qr/instagram.jpeg" alt="Instagram QR code for @kartheek__photography" width="104" height="104"></button><p>Scan to open our Instagram<br><span class="qr-hint">Tap the QR code to enlarge</span></p></div>
       </div>
     </aside>
   </form>
@@ -140,6 +140,8 @@ if(q)q.split(',').forEach(function(k){document.documentElement.classList.add('of
     <div class="qbar"><div class="qmeta"><span class="qstatus" id="qstatus" role="status"></span><div class="qcount" id="qcount" hidden><span class="qcount-label">Quotation saved · session reminder</span><span class="qcount-time" id="qcountTime">10:00</span></div></div><span class="qbtns"><button type="button" class="btn ghost" id="qedit">Edit</button><button type="button" class="btn ghost" id="qsubmit">Submit quotation</button><button type="button" class="btn" id="qdl">Download</button></span></div>
   </div>
 </div>
+
+<div id="qrModal" class="qmodal small" role="dialog" aria-modal="true" aria-labelledby="qrTitle" hidden><div class="qbox qr-modal-box" tabindex="-1"><div class="qhead"><h3 id="qrTitle">Scan to visit our Instagram</h3><button type="button" class="qx" id="qrClose" aria-label="Close">&times;</button></div><div class="qr-large-wrap"><img src="https://images.kartheekphotography.com/src/qr/instagram.jpeg" alt="Large Instagram QR code for @kartheek__photography"><p>Open your phone camera and point it at the QR code.</p></div></div></div>
 
 <div id="cb" class="qmodal small" role="dialog" aria-modal="true" aria-labelledby="cbt">
   <div class="qbox" tabindex="-1">

@@ -67,6 +67,20 @@
   /* "raghavi reddy" -> "Raghavi Reddy" (first letter of each word; the rest is left as typed) */
   const titleCase = s => s.trim().replace(/\s+/g, ' ').replace(/(^|[\s-])(\p{L})/gu, (m, a, b) => a + b.toLocaleUpperCase());
   const getClient = () => ({ name: titleCase($('#name').value), phone: $('#phone').value.trim(), city: titleCase($('#city').value) });
+  // Restrict personal details at input time, and validate again before building.
+  const nameInput = $('#name'), cityInput = $('#city'), phoneInput = $('#phone');
+  const cleanName = value => value.replace(/[^\p{L}\p{M} .’'-]/gu, '').replace(/\s{2,}/g, ' ');
+  nameInput.addEventListener('input', () => { const v=cleanName(nameInput.value); if(v!==nameInput.value) nameInput.value=v; });
+  cityInput.addEventListener('input', () => { const v=cleanName(cityInput.value).replace(/[^\p{L}\p{M} .,’'-]/gu, ''); if(v!==cityInput.value) cityInput.value=v; });
+  phoneInput.addEventListener('input', () => { phoneInput.value=phoneInput.value.replace(/\D/g, '').slice(0,10); });
+  // Expand the Instagram QR in a matching site modal.
+  const qrModal=$('#qrModal'), qrOpen=$('#qrOpen'), qrClose=$('#qrClose');
+  const openQr=()=>{ qrModal.hidden=false; qrModal.classList.add('open'); document.documentElement.style.overflow='hidden'; qrModal.querySelector('.qbox').focus(); };
+  const closeQr=()=>{ qrModal.classList.remove('open'); qrModal.hidden=true; document.documentElement.style.overflow=''; qrOpen.focus(); };
+  qrOpen.addEventListener('click',openQr); qrClose.addEventListener('click',closeQr);
+  qrModal.addEventListener('click',e=>{if(e.target===qrModal)closeQr();});
+  addEventListener('keydown',e=>{if(e.key==='Escape'&&qrModal.classList.contains('open'))closeQr();});
+
   let savedQuote = null, leadEmailSent = false;
   const qcount = $('#qcount'), qcountTime = $('#qcountTime');
   const formCountdown = $('#formCountdown'), formCountdownTime = $('#formCountdownTime'), formCountdownLabel = $('#formCountdownLabel');
